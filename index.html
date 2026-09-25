@@ -188,7 +188,7 @@
     <!-- KANAN: Form nya -->
     <div class="bg-white border border-slate-200 rounded-[24px] p-5 md:p-8 shadow-sm">
       <h3 class="text-[16px] font-bold text-[#0F2D52]">Buat Laporan Baru</h3>
-      <p class="text-[12px] text-slate-500 mt-1">Tiket <b>LAPOR-2026-XXXX</b> dibuat otomatis oleh sistem saat kamu klik Kirim.</p>
+      <p class="text-[12px] text-slate-500 mt-1">Tiket <b>SNEBRON-2026-XXXX</b> dibuat otomatis oleh sistem saat kamu klik Kirim.</p>
 
     <form id="formLapor" class="mt-6 space-y-5">
       <!-- Anonim -->
@@ -293,7 +293,7 @@
         <i data-lucide="send" class="w-5 h-5"></i> Kirim Laporan & Buat Tiket
       </button>
       <p class="text-[12px] text-center text-slate-500 leading-5">
-        Setelah terkirim, kamu akan dapat kode tiket unik seperti <span class="font-mono font-bold text-[#0F2D52]">LAPOR-2026-XXXX</span> untuk melacak status.
+        Setelah terkirim, kamu akan dapat kode tiket unik seperti <span class="font-mono font-bold text-[#0F2D52]">SNEBRON-2026-XXXX</span> untuk melacak status.
       </p>
     </form>
   </div>
@@ -307,7 +307,7 @@
 <section id="lacak" class="max-w-[760px] mx-auto px-4 sm:px-6 pb-6">
   <h3 class="font-bold text-[#0F2D52] mb-3">Lacak Pengaduan</h3>
   <div class="bg-white border rounded-[20px] p-4 flex flex-col md:flex-row gap-3">
-    <input id="inCekTiket" type="text" placeholder="Masukkan kode tiket, contoh: LAPOR-2026-1842" class="flex-1 border rounded-full px-5 py-3 text-sm">
+    <input id="inCekTiket" type="text" placeholder="Masukkan kode tiket, contoh: SNEBRON-2026-1842" class="flex-1 border rounded-full px-5 py-3 text-sm">
     <button onclick="cekTiket()" class="h-11 px-6 rounded-full bg-[#0F2D52] text-white font-bold text-sm">Cek Status</button>
   </div>
   <div id="outCek" class="hidden mt-3 bg-white border rounded-2xl p-5 text-sm"></div>
@@ -350,7 +350,7 @@
           <i data-lucide="megaphone" class="w-5 h-5 text-[#0F2D52]"></i>
         </div>
         <div class="mt-5 text-[16px] font-bold text-white">1. Lapor</div>
-        <div class="mt-2 text-[13px] leading-6 text-white/70">Isi formulir, bisa anonim. Dapatkan kode tiket LAPOR-XXXX.</div>
+        <div class="mt-2 text-[13px] leading-6 text-white/70">Isi formulir, bisa anonim. Dapatkan kode tiket SNEBRON-XXXX.</div>
       </div>
       <!-- 2. Verifikasi -->
       <div class="rounded-[20px] bg-white/[0.06] border border-white/10 p-6 backdrop-blur hover:bg-white/[0.09] transition">
@@ -471,7 +471,7 @@
     <div class="p-6 space-y-4">
       <div class="bg-[#F8FAFC] border rounded-xl p-4 text-center">
         <div class="text-[11px] tracking-widest text-slate-500 font-bold">KODE TIKET</div>
-        <div id="kodeModal" class="mt-1 font-mono text- font-bold text-[#0F2D52] break-all">LAPOR-2026-XXXX</div>
+        <div id="kodeModal" class="mt-1 font-mono text- font-bold text-[#0F2D52] break-all">SNEBRON-2026-XXXX</div>
         <div class="mt-2 inline-block text- bg-amber-100 border border-amber-200 text-amber-800 px-2.5 py-1 rounded-full">Estimasi respon &lt; 2x24 jam</div>
     <!-- Tombol Salin -->
     <button onclick="copyKode()" id="btnCopyTiket" class="mt-4 w-full h-11 rounded-full bg-white border border-slate-200 font-semibold text- flex items-center justify-center gap-2 hover:bg-slate-50 hover:border-[#0F2D52] hover:text-[#0F2D52] transition">
@@ -662,7 +662,7 @@ if(form){
     if(btn){ btn.disabled=true; btn.innerHTML="Mengirim..."; }
     const tahun=new Date().getFullYear();
     const acak=Math.floor(1000+Math.random()*9000);
-    const kodeBaru=`LAPOR-${tahun}-${acak}`;
+    const kodeBaru=`SNEBRON-${tahun}-${acak}`;
     const judul=document.getElementById("inJudul").value;
     const katEl=document.querySelector('input[name="kat"]:checked');
     const urgEl=document.querySelector('input[name="urg"]:checked');
