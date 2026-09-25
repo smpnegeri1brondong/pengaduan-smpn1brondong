@@ -12,6 +12,22 @@
   <style>body{font-family:'Plus Jakarta Sans',sans-serif;}</style>
 </head>
 <body class="bg-[#F8FAFC] text-slate-800">
+<!-- Taruh tepat setelah <body> -->
+<div id="pageTransition" class="fixed inset-0 z-[9999] bg-white flex-col items-center justify-center hidden opacity-0 transition-opacity duration-300">
+  <div class="flex flex-col items-center">
+    <div class="relative">
+      <div class="absolute inset-0 bg-[#0F2D52]/10 rounded-full animate-ping"></div>
+      <img src="logo-smp.png" alt="SMPN 1 Brondong" class="relative w-20 h-20 object-contain rounded-2xl bg-white border shadow-sm p-2 animate-[pulse_1.5s_ease-in-out_infinite]">
+    </div>
+    <div class="mt-5 font-extrabold text-[#0F2D52] text-">SMPN 1 BRONDONG</div>
+    <div class="mt-1.5 flex items-center gap-2">
+      <div class="w-1.5 h-1.5 bg-[#0F2D52] rounded-full animate-bounce"></div>
+      <div class="w-1.5 h-1.5 bg-[#0F2D52] rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+      <div class="w-1.5 h-1.5 bg-[#0F2D52] rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+    </div>
+    <div class="mt-3 text- text-slate-500">Memuat halaman admin...</div>
+  </div>
+</div>
 <div class="hidden rounded-2xl rounded-3xl rounded- rounded- p-4 p- shadow-sm"></div>
 <!-- =================================================================== -->
 <!-- 1. HEADER - Logo: logo-smp.png | Icon: lgo-smp2.png                 -->
@@ -31,7 +47,7 @@
       <button onclick="scrollToId('buat')" class="px-3 py-2">Buat Laporan</button>
       <button onclick="scrollToId('lacak')" class="px-3 py-2">Lacak</button>
       <button onclick="scrollToId('publik')" class="px-3 py-2">Transparansi</button>
-      <a href="admin-pengaduan.html" class="ml-2 w-9 h-9 rounded-full border border-slate-200 bg-slate-50 flex items-center justify-center hover:bg-[#0F2D52] hover:text-white hover:border-[#0F2D52] transition" title="Admin Panel">
+      <a href="admin-pengaduan.html" onclick="goAdmin(event, this.href)" class="ml-2 w-9 h-9 rounded-full border border-slate-200 bg-slate-50 flex items-center justify-center hover:bg-[#0F2D52] hover:text-white hover:border-[#0F2D52] transition" title="Admin Panel">
         <i data-lucide="shield" class="w-4 h-4"></i>
       </a>
     </nav>
@@ -49,7 +65,7 @@
     <button onclick="scrollToId('buat')" class="w-full text-left py-3 text-sm border-b">Buat Laporan</button>
     <button onclick="scrollToId('lacak')" class="w-full text-left py-3 text-sm border-b">Lacak Pengaduan</button>
     <button onclick="scrollToId('publik')" class="w-full text-left py-3 text-sm">Transparansi</button>
-    <a href="admin-pengaduan.html" class="w-full text-left py-3 text-sm flex items-center gap-2 text-slate-600"><i data-lucide="shield" class="w-4 h-4"></i> Admin Panel</a>
+    <a href="admin-pengaduan.html" onclick="goAdmin(event, this.href)" class="w-full text-left py-3 text-sm flex items-center gap-2 text-slate-600"><i data-lucide="shield" class="w-4 h-4"></i> Admin Panel</a>
   </div>
 </header>
 
@@ -748,6 +764,19 @@ document.querySelectorAll('input[name="kat"]').forEach(r=>{
   r.addEventListener("change", handleKategoriChange);
 });
 handleKategoriChange();
+function goAdmin(e, url){
+  e.preventDefault();
+  const trans = document.getElementById("pageTransition");
+  if(trans){
+    trans.classList.remove("hidden");
+    trans.classList.add("flex");
+    setTimeout(()=>{ trans.classList.remove("opacity-0"); trans.classList.add("opacity-100"); }, 10);
+    setTimeout(()=>{ window.location.href = url; }, 2000);
+  } else {
+    window.location.href = url;
+  }
+}
+window.goAdmin = goAdmin;
 </script>
 </body>
 </html>
