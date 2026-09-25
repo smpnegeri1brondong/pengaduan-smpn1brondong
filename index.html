@@ -777,6 +777,25 @@ function goAdmin(e, url){
   }
 }
 window.goAdmin = goAdmin;
+// FIX BACK BUTTON STUCK
+window.addEventListener('pageshow', function(event) {
+  const trans = document.getElementById("pageTransition");
+  if(trans){
+    trans.classList.add("hidden");
+    trans.classList.remove("flex");
+    trans.classList.add("opacity-0");
+    trans.classList.remove("opacity-100");
+  }
+});
+
+// juga sembunyiin pas load awal
+window.addEventListener('load', function() {
+  const trans = document.getElementById("pageTransition");
+  if(trans){
+    trans.classList.add("hidden");
+    trans.classList.remove("flex");
+  }
+});
 </script>
 </body>
 </html>
