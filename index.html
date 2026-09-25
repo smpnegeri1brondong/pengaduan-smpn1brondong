@@ -544,16 +544,42 @@ function renderLaporan(){
   const t=document.getElementById("statTotal"); if(t) t.innerText=dataLaporan.length;
   const p=document.getElementById("statProses"); if(p) p.innerText=dataLaporan.filter(l=>l.status==="Diproses"||l.status==="Diverifikasi"||l.status==="Menunggu").length;
   const s=document.getElementById("statSelesai"); if(s) s.innerText=dataLaporan.filter(l=>l.status==="Selesai").length;
+  
   grid.innerHTML="";
+
+  // --- FIX: KALO KOSONG TAMPILIN PESAN KAYA SCREENSHOT ---
+  if(filtered.length===0){
+    grid.innerHTML = `
+      <div class="col-span-3 py-16 flex flex-col items-center justify-center text-center">
+        <div class="w-14 h-14 rounded-full bg-slate-100 flex items-center justify-center">
+          <i data-lucide="inbox" class="w-6 h-6 text-slate-400"></i>
+        </div>
+        <div class="mt-4 text- font-bold text-[#0F2D52]">Belum ada laporan publik</div>
+        <div class="mt-1 text- text-slate-400">Laporan baru akan muncul di sini setelah ada yang mengirim</div>
+      </div>`;
+    if(window.lucide) lucide.createIcons();
+    return;
+  }
+
   filtered.forEach(l=>{
-    const dot=l.status==="Selesai"?"bg-emerald-500":(l.status==="Diproses"||l.status==="Diverifikasi")?"bg-amber-500":"bg-slate-400";
+    // --- FIX: TITIK WARNA BERDASARKAN URGENSI (4 LEVEL) BUKAN STATUS ---
+    const urg = (l.urgensi||"Sedang").toLowerCase();
+    let dot = "bg-amber-500"; // Sedang
+    if(urg.includes("rendah")) dot="bg-emerald-500";
+    if(urg.includes("tinggi")) dot="bg-orange-500";
+    if(urg.includes("darurat")) dot="bg-red-600";
+
     const empat=(l.tiket||l.id||"").slice(-4);
     const isSensitive = (l.kategori||"").toLowerCase().includes("perundungan") || (l.kategori||"").toLowerCase().includes("bullying");
     const displayJudul = isSensitive ? "Laporan Perundungan - Disamarkan" : (l.judul||"");
     const displayDesc = isSensitive ? "•••••" : (l.desc||l.deskripsi||"");
     const displayLokasi = isSensitive ? "•••••" : (l.lokasi||'');
-    grid.innerHTML+=`<div class="bg-white border border-slate-200/70 rounded-3xl p-3.5 shadow-sm overflow-hidden"><div class="flex justify-between items-center gap-2"><span style="font-size:9px" class="font-bold px-2.5 py-1 rounded-full bg-slate-100 border truncate max-w-[52%] leading-none">${l.kategori||"Umum"}</span><span style="font-size:9px" class="px-2.5 py-1 rounded-full border bg-white shrink-0 leading-none">${l.status||"Menunggu"}</span></div><div style="font-size:11px; line-height:16px" class="mt-2.5 font-bold text-[#0F2D52] truncate">${displayJudul}</div><div style="font-size:10px; line-height:15px" class="mt-1 text-slate-500 truncate">${displayDesc}</div><div style="font-size:9px" class="mt-2.5 flex justify-between text-slate-500"><span class="font-mono">${empat} • ${l.tgl||l.tanggal||""}</span><span class="flex items-center gap-1"><span class="w-1 h-1 rounded-full ${dot}"></span>${l.urgensi||"Sedang"}</span></div><div style="font-size:9px" class="mt-2 pt-2 border-t border-slate-100 flex justify-between text-slate-400"><span>Anonim</span><span class="truncate max-w-">${displayLokasi}</span></div></div>`;
-  });
+    let statusWarna = "bg-slate-100 text-slate-600 border-slate-200"; // Menunggu = abu-abu
+    if(l.status==="Diverifikasi") statusWarna="bg-yellow-100 text-yellow-800 border-yellow-200"; // kuning
+    if(l.status==="Diproses") statusWarna="bg-orange-100 text-orange-800 border-orange-200"; // oren
+    if(l.status==="Selesai") statusWarna="bg-emerald-100 text-emerald-800 border-emerald-200"; // ijo
+
+    grid.innerHTML+=`<div class="bg-white border border-slate-200/70 rounded-3xl p-3.5 shadow-sm overflow-hidden"><div class="flex justify-between items-center gap-2"><span style="font-size:9px" class="font-bold px-2.5 py-1 rounded-full bg-slate-100 border truncate max-w-[52%] leading-none">${l.kategori||"Umum"}</span><span style="font-size:9px" class="px-2.5 py-1 rounded-full border font-bold shrink-0 leading-none ${statusWarna}">${l.status||"Menunggu"}</span></div><div style="font-size:11px; line-height:16px" class="mt-2.5 font-bold text-[#0F2D52] truncate">${displayJudul}</div><div style="font-size:10px; line-height:15px" class="mt-1 text-slate-500 truncate">${displayDesc}</div><div style="font-size:9px" class="mt-2.5 flex justify-between text-slate-500"><span class="font-mono">${empat} • ${l.tgl||l.tanggal||""}</span><span class="flex items-center gap-1"><span class="w-1 h-1 rounded-full ${dot}"></span>${l.urgensi||"Sedang"}</span></div><div style="font-size:9px" class="mt-2 pt-2 border-t border-slate-100 flex justify-between text-slate-400"><span>Anonim</span><span class="truncate">${displayLokasi}</span></div></div>`;  });
   if(window.lucide) lucide.createIcons();
 }
 window.renderLaporan=renderLaporan;
