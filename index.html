@@ -471,9 +471,15 @@
     <div class="p-6 space-y-4">
       <div class="bg-[#F8FAFC] border rounded-xl p-4 text-center">
         <div class="text-[11px] tracking-widest text-slate-500 font-bold">KODE TIKET</div>
-        <div id="kodeModal" class="mt-1 font-mono text-[20px] font-bold text-[#0F2D52] break-all">LAPOR-2026-XXXX</div>
-        <div class="mt-2 inline-block text-[11px] bg-amber-100 border border-amber-200 text-amber-800 px-2.5 py-1 rounded-full">Estimasi respon &lt; 2x24 jam</div>
-      </div>
+        <div id="kodeModal" class="mt-1 font-mono text- font-bold text-[#0F2D52] break-all">LAPOR-2026-XXXX</div>
+        <div class="mt-2 inline-block text- bg-amber-100 border border-amber-200 text-amber-800 px-2.5 py-1 rounded-full">Estimasi respon &lt; 2x24 jam</div>
+    <!-- Tombol Salin -->
+    <button onclick="copyKode()" id="btnCopyTiket" class="mt-4 w-full h-11 rounded-full bg-white border border-slate-200 font-semibold text- flex items-center justify-center gap-2 hover:bg-slate-50 hover:border-[#0F2D52] hover:text-[#0F2D52] transition">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v3"/></svg>
+      <span id="txtCopy">Salin Kode Tiket</span>
+    </button>
+    <p id="copySuccess" class="hidden mt-2 text- text-emerald-600 font-medium">✅ Kode disalin ke clipboard!</p>
+    </div>
 
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -606,8 +612,27 @@ function updateFotoCount(){
 }
 window.previewFoto=previewFoto;
 window.closeModal=()=>{ const m=document.getElementById("modalTiket"); if(m) m.classList.add("hidden"); };
-window.copyKode=()=>{ const k=document.getElementById("kodeModal").innerText; navigator.clipboard.writeText(k); alert("Kode disalin!"); };
-window.cekTiket=async()=>{
+window.copyKode=()=>{
+  const kode = document.getElementById("kodeModal").innerText;
+  const btnTxt = document.getElementById("txtCopy");
+  const success = document.getElementById("copySuccess");
+  const btn = document.getElementById("btnCopyTiket");
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(kode).then(()=>{
+      if(btnTxt) btnTxt.innerText = "✅ Tersalin!";
+      if(success) success.classList.remove("hidden");
+      if(btn) { btn.classList.add("border-emerald-300","bg-emerald-50","text-emerald-700"); }
+      setTimeout(()=>{ if(btnTxt) btnTxt.innerText="Salin Kode Tiket"; if(success) success.classList.add("hidden"); if(btn) btn.classList.remove("border-emerald-300","bg-emerald-50","text-emerald-700"); }, 2500);
+    }).catch(()=>{ fallbackCopy(kode); });
+  } else { fallbackCopy(kode); }
+};
+function fallbackCopy(text){
+  const ta=document.createElement("textarea"); ta.value=text; document.body.appendChild(ta); ta.select(); document.execCommand("copy"); document.body.removeChild(ta);
+  const btnTxt=document.getElementById("txtCopy"); const success=document.getElementById("copySuccess");
+  if(btnTxt) btnTxt.innerText="✅ Tersalin!";
+  if(success) success.classList.remove("hidden");
+  setTimeout(()=>{ if(btnTxt) btnTxt.innerText="Salin Kode Tiket"; if(success) success.classList.add("hidden"); }, 2500);
+}window.cekTiket=async()=>{
   const input=document.getElementById("inCekTiket").value.trim().toUpperCase();
   const out=document.getElementById("outCek");
   if(!out) return;
