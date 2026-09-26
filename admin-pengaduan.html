@@ -9,6 +9,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/lucide@latest"></script>
 <style>body{font-family:'Plus Jakarta Sans',sans-serif}.glass{background:rgba(255,255,255,0.85);backdrop-filter:blur(12px)}</style>
+<script async src="https://unpkg.com/es-module-shims@1.8.0/dist/es-module-shims.js"></script>
+<script type="importmap">{"imports":{"firebase/app":"https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js","firebase/firestore":"https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js","firebase/storage":"https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js","firebase/auth":"https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"}}</script>
 </head>
 <body class="bg-[#F5F7FB] min-h-screen text-slate-800">
 
@@ -24,13 +26,14 @@
         <div class="ml-auto w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center"><i data-lucide="shield-check" class="w-4 h-4 text-emerald-600"></i></div>
       </div>
       <div class="mt-6"><h1 class="text-[22px] font-extrabold text-[#0F2D52] leading-tight">Masuk ke Dashboard</h1><p class="text-[13px] text-slate-500 mt-1">Kelola laporan siswa secara real-time</p></div>
-      <div class="mt-5 bg-[#F8FAFC] border rounded-2xl p-3.5 flex gap-3 items-start">
+      <div class="mt-5 bg-[#F8FAFC] border rounded-2xl p-3.5 flex gap-3 items-start" id="connInfo">
         <div class="w-9 h-9 rounded-xl bg-amber-100 flex items-center justify-center shrink-0"><i data-lucide="database" class="w-4 h-4 text-amber-600"></i></div>
-        <div class="text-[11px] leading-[1.5] text-slate-600">Menghubungkan ke<br><b>smpn1-brondong</b><br>Collection: laporan_smpn1_brondong</div>
+        <div class="text-[11px] leading-[1.5] text-slate-600">Menghubungkan ke<br><b>Firebase: smpn1-brondong</b><br>Collection: laporan_smpn1_brondong</div>
       </div>
       <div class="mt-5 space-y-3">
-        <div class="relative"><i data-lucide="lock" class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i><input id="passInput" type="password" placeholder="Password admin (admin123)" class="w-full h-[48px] border border-slate-200 rounded-full pl-11 pr-5 text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F2D52]/20 focus:border-[#0F2D52]"></div>
-        <button onclick="login()" class="w-full h-[48px] rounded-full bg-[#0F2D52] text-white font-bold text-[14px] flex items-center justify-center gap-2 hover:bg-[#133967]"><i data-lucide="log-in" class="w-4 h-4"></i> Masuk Dashboard</button>
+        <div class="relative"><i data-lucide="mail" class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i><input id="emailInput" type="email" placeholder="Email admin" class="w-full h-[48px] border border-slate-200 rounded-full pl-11 pr-5 text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F2D52]/20 focus:border-[#0F2D52]"></div>
+        <div class="relative"><i data-lucide="lock" class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i><input id="passInput" type="password" placeholder="Password" class="w-full h-[48px] border border-slate-200 rounded-full pl-11 pr-5 text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F2D52]/20 focus:border-[#0F2D52]"></div>
+        <button onclick="login()" class="w-full h-[48px] rounded-full bg-[#0F2D52] text-white font-bold text-[14px] flex items-center justify-center gap-2 hover:bg-[#133967] shadow-[0_8px_20px_rgba(15,45,82,0.25)]"><i data-lucide="log-in" class="w-4 h-4"></i> Masuk Dashboard</button>
         <p id="loginErr" class="hidden text-[12px] text-red-600 bg-red-50 border border-red-200 rounded-xl p-3 text-center"></p>
       </div>
     </div>
@@ -47,250 +50,338 @@
       </div>
       <div class="flex items-center gap-2">
         <div class="hidden md:flex items-center gap-2 mr-2 text-[12px] text-slate-500 bg-white border rounded-full px-3 py-1.5"><i data-lucide="database" class="w-3.5 h-3.5"></i> smpn1-brondong</div>
-        <button onclick="window.open('pengaduan.html','_blank')" class="hidden md:flex h-9 px-4 rounded-full bg-white border text-[13px] font-medium items-center gap-1.5 hover:bg-slate-50"><i data-lucide="external-link" class="w-4 h-4"></i> Website</button>
-        <button onclick="refreshData()" class="w-9 h-9 rounded-full bg-white border flex items-center justify-center hover:bg-slate-50" title="Refresh"><i data-lucide="refresh-cw" class="w-4 h-4"></i></button>
-        <button onclick="logout()" class="h-9 px-5 rounded-full bg-[#0F2D52] text-white text-[13px] font-bold flex items-center gap-1.5 hover:bg-[#133967]"><i data-lucide="log-out" class="w-4 h-4"></i> Logout</button>
+        <a href="pengaduan.html" target="_blank"class="h-9 px-4 rounded-full bg-white border flex items-center gap-1.5 text-[12px] font-bold"><i data-lucide="external-link" class="w-3.5 h-3.5"></i> Website</a>
+        <button onclick="loadData()" class="h-9 w-9 rounded-full bg-white border flex items-center justify-center"><i data-lucide="refresh-cw" class="w-4 h-4"></i></button>
+        <button onclick="logout()" class="h-9 px-4 rounded-full bg-[#0F2D52] text-white text-[12px] font-bold flex items-center gap-1.5"><i data-lucide="log-out" class="w-3.5 h-3.5"></i> Logout</button>
       </div>
     </div>
   </header>
 
-  <main class="max-w-[1280px] mx-auto px-4 sm:px-6 py-6">
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-2">
-      <div>
-        <h1 class="text-[24px] font-extrabold text-[#0F2D52]">Dashboard Laporan</h1>
-        <p class="text-[13px] text-slate-500 mt-1">Pantau & tindak lanjuti laporan siswa. Perubahan status langsung sinkron ke halaman utama.</p>
-      </div>
-      <div class="text-[12px] text-slate-500 bg-white border rounded-full px-3 py-1.5 flex items-center gap-1.5"><i data-lucide="clock" class="w-4 h-4"></i> Auto-sync • Realtime</div>
+  <div class="max-w-[1280px] mx-auto px-4 sm:px-6 py-6">
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-3">
+      <div><h1 class="text-[24px] font-extrabold text-[#0F2D52]">Dashboard Laporan</h1><p class="text-[13px] text-slate-500 mt-1">Pantau & tindak lanjuti laporan siswa. Perubahan status langsung sinkron ke halaman utama.</p></div>
+      <div class="flex items-center gap-2 text-[11px] text-slate-500 bg-white border rounded-full px-3 py-1.5 w-fit"><i data-lucide="clock" class="w-3.5 h-3.5"></i> Auto-sync • Realtime</div>
     </div>
 
-    <!-- 4 Cards Stats - PERSIS SCREENSHOT -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6">
-      <div class="bg-white border rounded-[24px] p-5 shadow-sm">
-        <div class="flex justify-between items-start">
-          <div class="w-11 h-11 rounded-[12px] bg-[#0F2D52] flex items-center justify-center"><i data-lucide="layers" class="w-5 h-5 text-white"></i></div>
-          <span class="text-[11px] font-bold px-2.5 py-1 rounded-full bg-slate-100 border">TOTAL</span>
-        </div>
-        <div class="mt-6 text-[32px] font-extrabold text-[#0F2D52]" id="statTotal">0</div>
-        <div class="text-[13px] text-slate-500">Semua laporan</div>
-        <div class="mt-3 h-1.5 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-[#0F2D52] w-full rounded-full"></div></div>
-      </div>
-      <div class="bg-[#FFFBEB] border border-amber-100 rounded-[24px] p-5 shadow-sm">
-        <div class="flex justify-between items-start">
-          <div class="w-11 h-11 rounded-[12px] bg-amber-500 flex items-center justify-center"><i data-lucide="hourglass" class="w-5 h-5 text-white"></i></div>
-          <span class="text-[11px] font-bold px-2.5 py-1 rounded-full bg-amber-100 border border-amber-200 text-amber-800">MENUNGGU</span>
-        </div>
-        <div class="mt-6 text-[32px] font-extrabold text-amber-600" id="statMenunggu">0</div>
-        <div class="text-[13px] text-slate-500">Perlu dicek</div>
-        <div class="mt-3 h-1.5 bg-amber-100 rounded-full overflow-hidden"><div id="barMenunggu" class="h-full bg-amber-400 rounded-full" style="width:0%"></div></div>
-      </div>
-      <div class="bg-[#EFF6FF] border border-blue-100 rounded-[24px] p-5 shadow-sm">
-        <div class="flex justify-between items-start">
-          <div class="w-11 h-11 rounded-[12px] bg-blue-600 flex items-center justify-center"><i data-lucide="loader-2" class="w-5 h-5 text-white"></i></div>
-          <span class="text-[11px] font-bold px-2.5 py-1 rounded-full bg-blue-100 border border-blue-200 text-blue-800">DIPROSES</span>
-        </div>
-        <div class="mt-6 text-[32px] font-extrabold text-blue-600" id="statProses">0</div>
-        <div class="text-[13px] text-slate-500">Sedang ditangani</div>
-        <div class="mt-3 h-1.5 bg-blue-100 rounded-full overflow-hidden"><div id="barProses" class="h-full bg-blue-400 rounded-full" style="width:0%"></div></div>
-      </div>
-      <div class="bg-[#ECFDF5] border border-emerald-100 rounded-[24px] p-5 shadow-sm">
-        <div class="flex justify-between items-start">
-          <div class="w-11 h-11 rounded-[12px] bg-emerald-600 flex items-center justify-center"><i data-lucide="check-circle-2" class="w-5 h-5 text-white"></i></div>
-          <span class="text-[11px] font-bold px-2.5 py-1 rounded-full bg-emerald-100 border border-emerald-200 text-emerald-800">SELESAI</span>
-        </div>
-        <div class="mt-6 text-[32px] font-extrabold text-emerald-700" id="statSelesai">0</div>
-        <div class="text-[13px] text-slate-500">Tuntas</div>
-        <div class="mt-3 h-1.5 bg-emerald-100 rounded-full overflow-hidden"><div id="barSelesai" class="h-full bg-emerald-400 rounded-full" style="width:0%"></div></div>
+    <div class="mt-6 grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <div class="bg-white border rounded-[20px] p-5 relative overflow-hidden hover:shadow-lg transition"><div class="absolute top-0 right-0 w-20 h-20 bg-[#0F2D52]/5 rounded-full blur-[20px] -mr-6 -mt-6"></div><div class="flex justify-between items-start"><div class="w-10 h-10 rounded-xl bg-[#0F2D52] flex items-center justify-center"><i data-lucide="layers" class="w-5 h-5 text-white"></i></div><span class="text-[10px] bg-slate-100 border px-2 py-1 rounded-full font-bold">TOTAL</span></div><div class="mt-4 text-[28px] font-extrabold text-[#0F2D52]" id="sTotal">0</div><div class="text-[12px] text-slate-500">Semua laporan</div><div class="mt-3 h-1 bg-slate-100 rounded-full"><div class="h-full w-full bg-[#0F2D52] rounded-full"></div></div></div>
+      <div class="bg-white border border-amber-200/60 rounded-[20px] p-5 relative overflow-hidden hover:shadow-lg transition"><div class="absolute top-0 right-0 w-20 h-20 bg-amber-400/15 rounded-full blur-[20px] -mr-6 -mt-6"></div><div class="flex justify-between items-start"><div class="w-10 h-10 rounded-xl bg-amber-500 flex items-center justify-center"><i data-lucide="hourglass" class="w-5 h-5 text-white"></i></div><span class="text-[10px] bg-amber-100 text-amber-800 border border-amber-200 px-2 py-1 rounded-full font-bold">MENUNGGU</span></div><div class="mt-4 text-[28px] font-extrabold text-amber-600" id="sMenunggu">0</div><div class="text-[12px] text-slate-500">Perlu dicek</div><div class="mt-3 h-1 bg-amber-100 rounded-full"><div id="barMenunggu" class="h-full bg-amber-500 rounded-full" style="width:0%"></div></div></div>
+      <div class="bg-white border border-blue-200/60 rounded-[20px] p-5 relative overflow-hidden hover:shadow-lg transition"><div class="absolute top-0 right-0 w-20 h-20 bg-blue-400/15 rounded-full blur-[20px] -mr-6 -mt-6"></div><div class="flex justify-between items-start"><div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center"><i data-lucide="loader-2" class="w-5 h-5 text-white"></i></div><span class="text-[10px] bg-blue-100 text-blue-800 border border-blue-200 px-2 py-1 rounded-full font-bold">DIPROSES</span></div><div class="mt-4 text-[28px] font-extrabold text-blue-600" id="sDiproses">0</div><div class="text-[12px] text-slate-500">Sedang ditangani</div><div class="mt-3 h-1 bg-blue-100 rounded-full"><div id="barDiproses" class="h-full bg-blue-600 rounded-full" style="width:0%"></div></div></div>
+      <div class="bg-white border border-emerald-200/60 rounded-[20px] p-5 relative overflow-hidden hover:shadow-lg transition"><div class="absolute top-0 right-0 w-20 h-20 bg-emerald-400/15 rounded-full blur-[20px] -mr-6 -mt-6"></div><div class="flex justify-between items-start"><div class="w-10 h-10 rounded-xl bg-emerald-600 flex items-center justify-center"><i data-lucide="check-circle-2" class="w-5 h-5 text-white"></i></div><span class="text-[10px] bg-emerald-100 text-emerald-800 border border-emerald-200 px-2 py-1 rounded-full font-bold">SELESAI</span></div><div class="mt-4 text-[28px] font-extrabold text-emerald-600" id="sSelesai">0</div><div class="text-[12px] text-slate-500">Tuntas</div><div class="mt-3 h-1 bg-emerald-100 rounded-full"><div id="barSelesai" class="h-full bg-emerald-600 rounded-full" style="width:0%"></div></div></div>
+    </div>
+
+    <div class="mt-6 bg-white border rounded-[20px] p-3 flex flex-col md:flex-row gap-3 items-center shadow-sm">
+      <div class="flex-1 relative w-full"><i data-lucide="search" class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i><input id="search" placeholder="Cari tiket SNEBRON-XXXX, judul, kategori..." class="w-full h-[44px] border border-slate-200 rounded-full pl-11 pr-4 text-[13px] focus:outline-none focus:ring-2 focus:ring-[#0F2D52]/10 focus:border-[#0F2D52]"></div>
+      <div class="flex gap-2 w-full md:w-auto">
+        <div class="relative"><i data-lucide="filter" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i><select id="filterStatus" class="h-[44px] border border-slate-200 rounded-full pl-9 pr-8 text-[13px] font-medium bg-white"><option value="Semua">Semua Status</option><option>Menunggu</option><option>Diverifikasi</option><option>Diproses</option><option>Selesai</option></select></div>
+        <button onclick="exportExcel()"style="background:#059669;border:1px solid #059669;color:white"class="h- px-5 rounded-full bg-emerald-600 border border-emerald-600 text-white text-[13px] font-bold flex items-center gap-1.5 whitespace-nowrap"><i data-lucide="file-spreadsheet" class="w-4 h-4"></i> Ekspor Excel</button>        
+        <button onclick="loadData()" class="h-[44px] px-5 rounded-full bg-[#0F2D52] text-white text-[13px] font-bold flex items-center gap-1.5"><i data-lucide="refresh-cw" class="w-4 h-4"></i> Refresh</button>
       </div>
     </div>
 
-    <div class="mt-6 bg-white border rounded-[20px] p-3 flex flex-col md:flex-row gap-3">
-      <div class="flex-1 relative">
-        <i data-lucide="search" class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-        <input id="search" type="text" placeholder="Cari tiket LAPOR-XXXX, judul, kategori..." class="w-full h-[44px] border border-slate-200 rounded-full pl-11 pr-4 text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F2D52]/20">
-      </div>
-      <select id="filterStatus" class="h-[44px] border border-slate-200 rounded-full px-4 text-[14px] bg-white">
-        <option value="Semua">Semua Status</option>
-        <option value="Menunggu">Menunggu</option>
-        <option value="Diverifikasi">Diverifikasi</option>
-        <option value="Diproses">Diproses</option>
-        <option value="Selesai">Selesai</option>
-      </select>
-      <button onclick="refreshData()" class="h-[44px] px-6 rounded-full bg-[#0F2D52] text-white font-bold text-[14px] flex items-center justify-center gap-2"><i data-lucide="refresh-cw" class="w-4 h-4"></i> Refresh</button>
+    <div class="mt-4 bg-white border border-slate-200 rounded-[20px] overflow-hidden shadow-sm">
+      <div class="px-5 py-4 border-b flex items-center justify-between"><div class="font-bold text-[#0F2D52] text-[14px] flex items-center gap-2"><i data-lucide="table" class="w-4 h-4"></i> Daftar Laporan <span class="text-[11px] font-normal text-slate-500 bg-slate-100 border px-2 py-0.5 rounded-full" id="countInfo">0 laporan</span></div><div class="text-[11px] text-slate-500 hidden md:flex items-center gap-1"><span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span> Live sync dari Firestore</div></div>
+      <div class="overflow-x-auto"><table class="w-full text-sm"><thead class="bg-[#F8FAFC] border-b text-[11px] text-slate-500"><tr><th class="px-5 py-3 text-left font-bold">TIKET</th><th class="px-5 py-3 text-left font-bold">LAPORAN</th><th class="px-5 py-3 text-left font-bold">KONTAK</th><th class="px-5 py-3 text-left font-bold">STATUS</th><th class="px-5 py-3 text-left font-bold">AKSI</th></tr></thead><tbody id="tbody" class="divide-y divide-slate-100"></tbody></table></div>
     </div>
-
-    <div class="mt-4 bg-white border rounded-[20px] overflow-hidden">
-      <div class="overflow-x-auto">
-        <table class="w-full text-left">
-          <thead class="bg-[#F8FAFC] border-b text-[11px] font-bold tracking-wide text-slate-500">
-            <tr><th class="px-5 py-3">TIKET</th><th class="px-5 py-3">LAPORAN</th><th class="px-5 py-3">KONTAK</th><th class="px-5 py-3">STATUS</th><th class="px-5 py-3">AKSI</th></tr>
-          </thead>
-          <tbody id="tbody" class="text-[13px]"></tbody>
-        </table>
-      </div>
-    </div>
-  </main>
-</div>
-
-<!-- Modal Edit -->
-<div id="modalEdit" class="hidden fixed inset-0 z-[100] bg-black/50 flex items-center justify-center p-4">
-  <div class="w-full max-w-[560px] bg-white rounded-[24px] overflow-hidden shadow-xl max-h-[90vh] overflow-y-auto">
-    <div class="p-6 border-b flex justify-between items-center">
-      <div><div class="font-extrabold text-[#0F2D52]">Edit Laporan</div><div class="text-[11px] text-slate-500 font-mono" id="eTiket">LAPOR-XXXX</div></div>
-      <button onclick="closeEdit()" class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center">✕</button>
-    </div>
-    <div class="p-6 space-y-4">
-      <div><div class="text-[11px] font-bold text-slate-500 tracking-wide">JUDUL</div><div class="mt-1 font-semibold text-[14px]" id="eJudul"></div></div>
-      <div><div class="text-[11px] font-bold text-slate-500 tracking-wide">DESKRIPSI</div><div class="mt-1 text-[13px] text-slate-600 bg-[#F8FAFC] border rounded-xl p-3" id="eDesc"></div></div>
-      <div id="eFoto" class="flex gap-2 flex-wrap"></div>
-      <div id="eKontak"></div>
-      <div class="grid grid-cols-2 gap-3">
-        <div><label class="text-[11px] font-bold">Status</label><select id="eStatus" class="w-full mt-1 h-11 border rounded-xl px-3 text-[14px]"><option>Menunggu</option><option>Diverifikasi</option><option>Diproses</option><option>Selesai</option></select></div>
-        <div><label class="text-[11px] font-bold">Urgensi</label><select id="eUrgensi" class="w-full mt-1 h-11 border rounded-xl px-3 text-[14px]"><option>Rendah</option><option>Sedang</option><option>Tinggi</option></select></div>
-      </div>
-      <div><label class="text-[11px] font-bold">Catatan / Feedback Admin (akan muncul di halaman siswa)</label><textarea id="eCatatan" placeholder="Tulis feedback..." class="w-full mt-1 h-24 border rounded-xl p-3 text-[14px]"></textarea></div>
-      <div id="waAction" class="hidden flex gap-2">
-        <a id="btnWA" target="_blank" class="flex-1 h-11 rounded-full bg-emerald-600 text-white font-bold text-[13px] flex items-center justify-center gap-2"><i data-lucide="phone" class="w-4 h-4"></i> WA</a>
-        <a id="btnEmail" target="_blank" class="flex-1 h-11 rounded-full bg-blue-600 text-white font-bold text-[13px] flex items-center justify-center gap-2"><i data-lucide="mail" class="w-4 h-4"></i> Email</a>
-      </div>
-      <button onclick="saveEdit()" class="w-full h-12 rounded-full bg-[#0F2D52] text-white font-bold">Simpan & Sinkron ke Siswa</button>
-    </div>
+    <p class="mt-4 text-[11px] text-slate-400 text-center">🔒 Data dari <b>Firestore: laporan_smpn1_brondong</b> • Project <b>smpn1-brondong</b></p>
   </div>
 </div>
 
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script>
+<div id="modalEdit" class="hidden fixed inset-0 bg-[#0F2D52]/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+  <div class="bg-white rounded-[28px] w-full max-w-[560px] max-h-[90vh] overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.25)] border">
+    <div class="bg-[#0F2D52] p-6 text-white relative overflow-hidden"><div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-[30px] -mr-10 -mt-10"></div><div class="relative flex items-start justify-between"><div><div class="text-[11px] tracking-widest text-white/60 font-bold">EDIT LAPORAN</div><div id="eTiket" class="mt-1 font-mono text-[16px] font-bold">SNEBRON-2026-XXXX</div><div id="eJudul" class="mt-2 text-[15px] font-semibold leading-snug max-w-[320px]"></div></div><button onclick="closeEdit()" class="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center"><i data-lucide="x" class="w-4 h-4"></i></button></div></div>
+    <div class="p-6 overflow-auto max-h-[60vh] space-y-4">
+      <div id="eDesc" class="text-[12px] text-slate-600 bg-[#F8FAFC] border rounded-xl p-3 leading-5"></div>
+      <div id="eFoto" class="flex gap-2 flex-wrap"></div>
+      <div id="eKontak" class="space-y-2"></div>
+      <div class="grid grid-cols-2 gap-3"><div><label class="text-[10px] font-bold text-slate-600">STATUS</label><select id="eStatus" class="mt-1.5 w-full h-[44px] border rounded-xl px-4 text-[13px] font-medium bg-white"><option>Menunggu</option><option>Diverifikasi</option><option>Diproses</option><option>Selesai</option></select></div><div><label class="text-[10px] font-bold text-slate-600">URGENSI</label><select id="eUrgensi" class="mt-1.5 w-full h-[44px] border rounded-xl px-4 text-[13px] font-medium bg-white"><option>Rendah</option><option>Sedang</option><option>Tinggi</option><option>Darurat</option></select></div></div>
+      <div><label class="text-[10px] font-bold text-slate-600">FEEDBACK UNTUK PELAPOR <span class="text-emerald-600 font-normal">(muncul saat lacak tiket)</span></label><textarea id="eCatatan" placeholder="Contoh: Sudah ditindaklanjuti, kipas diganti 28 Mei." class="mt-1.5 w-full border border-slate-200 rounded-xl px-4 py-3 text-[13px] h-[90px] focus:outline-none focus:ring-2 focus:ring-[#0F2D52]/10 focus:border-[#0F2D52]"></textarea></div>
+      <div id="waAction" class="hidden grid grid-cols-2 gap-2 pt-2 border-t"><a id="btnWA" href="#" target="_blank" class="h-11 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-[12px] font-bold flex items-center justify-center gap-1.5"><i data-lucide="message-circle" class="w-4 h-4"></i> Kirim WA</a><a id="btnEmail" href="#" class="h-11 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-[12px] font-bold flex items-center justify-center gap-1.5"><i data-lucide="mail" class="w-4 h-4"></i> Kirim Email</a></div>
+    </div>
+    <div class="p-4 bg-[#F8FAFC] border-t flex gap-2"><button onclick="closeEdit()" class="flex-1 h-11 rounded-full border bg-white font-semibold text-[13px]">Batal</button><button onclick="saveEdit()" class="flex-1 h-11 rounded-full bg-[#0F2D52] text-white font-bold text-[13px] flex items-center justify-center gap-1.5"><i data-lucide="check" class="w-4 h-4"></i> Simpan & Sinkron</button></div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "firebase/app";
+import { getFirestore, collection, getDocs, query, orderBy, doc, updateDoc, deleteDoc } from "firebase/firestore";
+
 const firebaseConfig = {
   apiKey: "AIzaSyCBw7cC2wAxAMNfEJyPD-_62_qmlIw5ZyE",
   authDomain: "smpn1-brondong.firebaseapp.com",
   projectId: "smpn1-brondong",
   storageBucket: "smpn1-brondong.firebasestorage.app",
   messagingSenderId: "918473388225",
-  appId: "1:918473388225:web:10074c05297aa3c9dce440"
+  appId: "1:918473388225:web:10074c05297aa3c9dce440",
+  measurementId: "G-TNNR7EKEYH"
 };
-let db=null;
-try{ firebase.initializeApp(firebaseConfig); db=firebase.firestore(); console.log("Admin KONEK"); }catch(e){ console.log(e); }
 
-let allDocs=[]; let filtered=[]; let unsub=null;
-
-function login(){
+let db, auth, allDocs=[];
+function escapeHTML(str){
+  return (str||"").toString().replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;");
+}
+function escapeAttr(str){
+  return escapeHTML(str).replace(/`/g,"&#96;");
+}
+let firebaseApp=null;
+function initFirebase(){
+  if(!firebaseApp){
+    firebaseApp = initializeApp(firebaseConfig);
+    db = getFirestore(firebaseApp);
+  }
+  return db;
+}
+window.login=async()=>{
+  const email=document.getElementById("emailInput")?.value?.trim();
   const pass=document.getElementById("passInput").value;
-  if(pass!=="admin123"){ const err=document.getElementById("loginErr"); err.classList.remove("hidden"); err.innerText="Password salah! Default: admin123"; return; }
-  document.getElementById("loginPage").classList.add("hidden");
-  document.getElementById("adminPage").classList.remove("hidden");
-  listenAdmin();
-}
-window.login=login;
-
-function logout(){
-  if(unsub) unsub();
-  document.getElementById("adminPage").classList.add("hidden");
-  document.getElementById("loginPage").classList.remove("hidden");
-  document.getElementById("passInput").value="";
-  allDocs=[]; filtered=[];
-  console.log("Logout");
-}
-window.logout=logout;
-
-function refreshData(){
-  if(db) listenAdmin();
-  else location.reload();
-}
-window.refreshData=refreshData;
-
-function listenAdmin(){
-  if(unsub) unsub();
-  const tbody=document.getElementById("tbody");
-  if(tbody) tbody.innerHTML="<tr><td colspan='5' class='text-center py-10 text-slate-400'>Memuat data dari Firebase...</td></tr>";
-  unsub = db.collection("laporan_smpn1_brondong").onSnapshot(snap=>{
-    allDocs=[];
-    snap.forEach(docSnap=>{
-      const d=docSnap.data();
-      allDocs.push({ docId: docSnap.id, tiket: d.tiket||d.id, id: d.tiket||d.id, judul: d.judul, deskripsi: d.deskripsi||d.desc, desc: d.deskripsi||d.desc, kategori: d.kategori, urgensi: d.urgensi, status: d.status||"Menunggu", tanggal: d.tanggal, lokasi: d.lokasi, anonim: d.anonim, nama: d.nama, wa: d.wa, email: d.email, allowContact: d.allowContact, fotoUrls: d.fotoUrls||[], catatanAdmin: d.catatanAdmin||"", createdAt: d.createdAt||null });
+  const errEl=document.getElementById("loginErr");
+  if(!email || !pass){ errEl.innerText="Isi email & password admin"; errEl.classList.remove("hidden"); return; }
+  errEl.classList.add("hidden");
+  try{
+    const { getAuth, signInWithEmailAndPassword } = await import("firebase/auth");
+    if(!firebaseApp) initFirebase();
+    auth = getAuth(firebaseApp);
+    await signInWithEmailAndPassword(auth, email, pass);
+  }catch(e){
+    console.error(e);
+    let msg = e.code || e.message;
+    if(e.code==="auth/invalid-credential" || e.code==="auth/wrong-password" || e.code==="auth/user-not-found") msg="Email atau password salah";
+    if(e.code==="auth/too-many-requests") msg="Terlalu banyak percobaan, coba lagi nanti";
+    errEl.innerText="❌ "+msg; errEl.classList.remove("hidden");
+  }
+};
+window.logout=async()=>{
+  try{
+    const { getAuth, signOut } = await import("firebase/auth");
+    const a = getAuth();
+    await signOut(a);
+  }catch{}
+  location.reload();
+};
+(async()=>{
+  try{
+    const { getAuth, onAuthStateChanged } = await import("firebase/auth");
+    if(!firebaseApp) initFirebase();
+    auth = getAuth(firebaseApp);
+    onAuthStateChanged(auth, (user)=>{
+      if(user){
+        document.getElementById("loginPage").classList.add("hidden");
+        document.getElementById("adminPage").classList.remove("hidden");
+        const conn=document.getElementById("connInfo");
+        if(conn) conn.innerHTML = `<div class="flex gap-2 items-start"><div class="w-8 h-8 rounded-xl bg-emerald-100 flex items-center justify-center shrink-0"><i data-lucide="check" class="w-4 h-4 text-emerald-600"></i></div><div><b class="text-[#0F2D52]">✅ Login sebagai ${escapeHTML(user.email)}</b><br><span class="text-slate-500">Collection: laporan_smpn1_brondong</span></div></div>`;
+        lucide.createIcons();
+        loadData();
+      }
     });
-    allDocs.sort((a,b)=> (b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
-    render();
-    console.log("Admin real-time", allDocs.length);
-  }, err=>{
-    console.error("Snapshot error", err);
-    alert("Gagal load: "+err.message+" - Cek Rules Firebase harus allow read, write: if true");
-  });
-}
+  }catch(e){ console.log("auth init", e); }
+})();
+
+window.loadData=async()=>{
+  const q = query(collection(db,"laporan_smpn1_brondong"), orderBy("createdAt","desc"));
+  const snap = await getDocs(q);
+  allDocs=[]; snap.forEach(d=> allDocs.push({docId:d.id, ...d.data()}));
+  render();
+};
 
 function render(){
-  const q=(document.getElementById("search")?.value||"").toLowerCase();
-  const f=document.getElementById("filterStatus")?.value||"Semua";
-  filtered=allDocs.filter(d=>{
-    const matchQ = (d.judul||"").toLowerCase().includes(q) || (d.tiket||"").toLowerCase().includes(q) || (d.kategori||"").toLowerCase().includes(q);
-    const matchF = f==="Semua" || d.status===f;
-    return matchQ && matchF;
+  const s=document.getElementById("search").value.toLowerCase();
+  const fs=document.getElementById("filterStatus").value;
+  let filtered = allDocs.filter(d=>{
+    if(fs!=="Semua" && d.status!==fs) return false;
+    if(s && !( (d.tiket||"").toLowerCase().includes(s) || (d.judul||"").toLowerCase().includes(s) || (d.kategori||"").toLowerCase().includes(s) )) return false;
+    return true;
   });
+  const total = allDocs.length || 1;
+  document.getElementById("tbody").innerHTML="";
+  document.getElementById("sTotal").innerText=allDocs.length;
+  document.getElementById("sMenunggu").innerText=allDocs.filter(d=>d.status==="Menunggu").length;
+  document.getElementById("sDiproses").innerText=allDocs.filter(d=>d.status==="Diproses"||d.status==="Diverifikasi").length;
+  document.getElementById("sSelesai").innerText=allDocs.filter(d=>d.status==="Selesai").length;
+  document.getElementById("countInfo").innerText=filtered.length+" laporan";
+  document.getElementById("barMenunggu").style.width = (allDocs.filter(d=>d.status==="Menunggu").length/total*100)+"%";
+  document.getElementById("barDiproses").style.width = (allDocs.filter(d=>d.status==="Diproses"||d.status==="Diverifikasi").length/total*100)+"%";
+  document.getElementById("barSelesai").style.width = (allDocs.filter(d=>d.status==="Selesai").length/total*100)+"%";
 
-  // Update 4 cards - INI YANG TADI GABISA UPDATE
-  const total=allDocs.length;
-  const menunggu=allDocs.filter(d=>d.status==="Menunggu").length;
-  const diproses=allDocs.filter(d=>d.status==="Diproses"||d.status==="Diverifikasi").length;
-  const selesai=allDocs.filter(d=>d.status==="Selesai").length;
-
-  const elTotal=document.getElementById("statTotal"); if(elTotal) elTotal.innerText=total;
-  const elMenunggu=document.getElementById("statMenunggu"); if(elMenunggu) elMenunggu.innerText=menunggu;
-  const elProses=document.getElementById("statProses"); if(elProses) elProses.innerText=diproses;
-  const elSelesai=document.getElementById("statSelesai"); if(elSelesai) elSelesai.innerText=selesai;
-
-  // Update bar width
-  const pct = (v)=> total>0 ? Math.round(v/total*100) : 0;
-  const barM=document.getElementById("barMenunggu"); if(barM) barM.style.width=pct(menunggu)+"%";
-  const barP=document.getElementById("barProses"); if(barP) barP.style.width=pct(diproses)+"%";
-  const barS=document.getElementById("barSelesai"); if(barS) barS.style.width=pct(selesai)+"%";
-
-  const tbody=document.getElementById("tbody"); if(!tbody) return;
-  tbody.innerHTML="";
   filtered.forEach(d=>{
-    const warna = d.status==="Selesai"?"bg-emerald-50 border-emerald-200 text-emerald-700":d.status==="Diproses"||d.status==="Diverifikasi"?"bg-amber-50 border-amber-200 text-amber-700":"bg-amber-50 border-amber-200 text-amber-700";
+    let warna="bg-amber-100 text-amber-800 border-amber-200"; if(d.status==="Selesai") warna="bg-emerald-100 text-emerald-800 border-emerald-200"; if(d.status==="Diproses") warna="bg-blue-100 text-blue-800 border-blue-200"; if(d.status==="Diverifikasi") warna="bg-sky-100 text-sky-800 border-sky-200";
     let kontak = "";
-    if(d.wa) kontak += `<div class="flex items-center gap-1"><i data-lucide="phone" class="w-3 h-3"></i> ${d.wa}</div>`;
-    if(d.email) kontak += `<div class="flex items-center gap-1 mt-1"><i data-lucide="mail" class="w-3 h-3"></i> ${d.email}</div>`;
-    if(!d.wa && !d.email) kontak = "<span class='text-slate-400 text-[11px]'>Anonim via tiket</span>";
-    const hasFoto = (d.fotoUrls||[]).length>0 ? `<span class="text-[10px] bg-slate-100 border px-1.5 rounded-full ml-1">${d.fotoUrls.length} foto</span>` : "";
-    tbody.innerHTML+=`<tr class="hover:bg-[#F8FAFC] border-b"><td class="px-5 py-4"><div class="font-mono text-[11px] font-bold text-[#0F2D52]">${d.tiket||d.id}</div><div class="text-[10px] text-slate-400 mt-1">${(d.tanggal||"").slice(0,16)}</div></td><td class="px-5 py-4 max-w-[320px]"><div class="font-semibold text-[13px] text-[#0F2D52]">${d.judul} ${hasFoto}</div><div class="text-[11px] text-slate-500 mt-1"><span class="px-2 py-0.5 rounded-full bg-slate-100 border text-[10px]">${d.kategori||"Umum"}</span> ${d.urgensi||""}</div>${d.catatanAdmin?`<div class="mt-2 text-[11px] bg-emerald-50 border border-emerald-200 rounded-xl p-2.5"><b>Feedback:</b> ${d.catatanAdmin}</div>`:""}</td><td class="px-5 py-4 text-[11px]"><div class="bg-[#F8FAFC] border rounded-xl p-2.5 min-w-[160px]">${kontak}</div></td><td class="px-5 py-4"><span class="px-2.5 py-1 rounded-full text-[11px] font-bold border ${warna}">${d.status}</span></td><td class="px-5 py-4"><div class="flex flex-col gap-1.5"><button onclick="openEdit('${d.docId}')" class="h-8 px-3.5 rounded-full bg-[#0F2D52] text-white text-[11px] font-bold">Edit</button><button onclick="hapus('${d.docId}')" class="h-8 px-3.5 rounded-full bg-white border border-red-200 text-red-600 text-[11px]">Hapus</button></div></td></tr>`;
+    const _namaReal = (d.namaAsli || d.nama || "").trim();
+    const _isNamaValid = _namaReal && _namaReal.toLowerCase() !== "anonim";
+    if(_isNamaValid){
+      kontak += `<div class="flex items-center gap-1 font-semibold text-[#0F2D52] text-[12px]"><i data-lucide="user" class="w-3 h-3"></i> ${escapeHTML(_namaReal)}</div>`;
+      if(d.peran) kontak += `<div class="text-[10px] text-slate-500 ml-4">${escapeHTML(d.peran)}${d.anonim?' • Anonim di publik':''}</div>`;
+    }
+    const fotoCount = Array.isArray(d.fotoUrls) ? d.fotoUrls.length : 0;
+    if(fotoCount>0){
+      kontak += `<div class="mt-1 flex items-center gap-1 text-[10px] bg-blue-50 border border-blue-200 text-blue-700 px-2 py-1 rounded-full w-fit"><i data-lucide="image" class="w-3 h-3"></i> ${fotoCount} foto bukti</div>`;
+    }
+    if(d.wa) kontak += `<div class="flex items-center gap-1 mt-1"><i data-lucide="phone" class="w-3 h-3"></i> ${escapeHTML(d.wa)}</div>`;
+    if(d.email) kontak += `<div class="flex items-center gap-1 mt-1"><i data-lucide="mail" class="w-3 h-3"></i> ${escapeHTML(d.email)}</div>`;
+    if(!_isNamaValid && !d.wa && !d.email && fotoCount===0){
+      kontak = "<span class='text-slate-400 text-[11px] flex items-center gap-1'><i data-lucide='shield' class='w-3 h-3'></i> Anonim penuh - via tiket</span>";
+    }
+    if(d.allowContact) kontak += "<div class='mt-1 text-emerald-600 text-[10px] font-bold flex items-center gap-1'><i data-lucide='check' class='w-3 h-3'></i> Bersedia dihubungi</div>";
+    const hasFoto = (d.fotoUrls||[]).length>0 ? `<span class="text-[10px] bg-slate-100 border px-1.5 py-0.5 rounded-full ml-1">${d.fotoUrls.length} foto</span>` : "";
+    document.getElementById("tbody").innerHTML+=`
+      <tr class="hover:bg-[#F8FAFC] transition">
+        <td class="px-5 py-4"><div class="font-mono text-[11px] font-bold text-[#0F2D52]">${escapeHTML(d.tiket||d.id)}</div><div class="text-[10px] text-slate-400 mt-1">${escapeHTML((d.tanggal||"").slice(0,16))}</div></td>
+        <td class="px-5 py-4 max-w-[320px]"><div class="font-semibold text-[13px] text-[#0F2D52] leading-5 flex items-center gap-1">${escapeHTML(d.judul)} ${hasFoto}</div><div class="text-[11px] text-slate-500 mt-1 flex items-center gap-1.5"><span class="px-2 py-0.5 rounded-full bg-slate-100 border text-[10px]">${escapeHTML(d.kategori)}</span><span class="w-1 h-1 bg-slate-300 rounded-full"></span>${escapeHTML(d.urgensi)}</div>${d.catatanAdmin?`<div class="mt-2 text-[11px] bg-emerald-50 border border-emerald-200 rounded-xl p-2.5 leading-4"><span class="font-bold text-emerald-800">Feedback:</span> ${escapeHTML(d.catatanAdmin)}</div>`:""}</td>
+        <td class="px-5 py-4 text-[11px]"><div class="bg-[#F8FAFC] border rounded-xl p-2.5 min-w-[160px]">${kontak}</div></td>
+        <td class="px-5 py-4"><span class="px-2.5 py-1 rounded-full text-[11px] font-bold border ${warna}">${escapeHTML(d.status)}</span></td>
+        <td class="px-5 py-4"><div class="flex flex-col gap-1.5"><button onclick="openEdit('${d.docId}')" class="h-8 px-3.5 rounded-full bg-[#0F2D52] text-white text-[11px] font-bold flex items-center gap-1 hover:bg-[#133967]"><i data-lucide="edit-3" class="w-3 h-3"></i> Edit</button><button onclick="hapus('${d.docId}')" class="h-8 px-3.5 rounded-full bg-white border border-red-200 text-red-600 text-[11px] font-medium hover:bg-red-50 flex items-center gap-1"><i data-lucide="trash-2" class="w-3 h-3"></i> Hapus</button></div></td>
+      </tr>`;
   });
-  if(filtered.length===0) tbody.innerHTML="<tr><td colspan='5' class='text-center py-14'><div class='w-12 h-12 mx-auto bg-slate-100 rounded-full flex items-center justify-center'><i data-lucide='inbox' class='w-6 h-6 text-slate-400'></i></div><div class='mt-3 text-[13px] font-semibold text-slate-600'>Belum ada laporan</div></td></tr>";
   lucide.createIcons();
+  if(filtered.length===0) document.getElementById("tbody").innerHTML="<tr><td colspan='5' class='text-center py-14'><div class='w-12 h-12 mx-auto bg-slate-100 rounded-full flex items-center justify-center'><i data-lucide='inbox' class='w-6 h-6 text-slate-400'></i></div><div class='mt-3 text-[13px] font-semibold text-slate-600'>Belum ada laporan</div><div class='text-[11px] text-slate-400 mt-1'>Data akan muncul di sini saat siswa kirim dari halaman utama</div></td></tr>";
 }
 
 let editId=null;
 window.openEdit=(docId)=>{
-  const d=allDocs.find(x=>x.docId===docId); if(!d) return; editId=docId;
-  document.getElementById("eTiket").innerText=d.tiket||d.id;
-  document.getElementById("eJudul").innerText=d.judul;
-  document.getElementById("eDesc").innerText=d.deskripsi||d.desc||"";
+  console.log("[DEBUG] openEdit clicked", docId);
+  const d=allDocs.find(x=>x.docId===docId); 
+  if(!d){ alert("Data tidak ditemukan"); return; }
+  editId=docId;
+  document.getElementById("eTiket").innerText=d.tiket||d.id||"-";
+  document.getElementById("eJudul").innerText=d.judul||"-";
+  document.getElementById("eDesc").innerText=d.deskripsi||d.desc||"-";
   document.getElementById("eStatus").value=d.status||"Menunggu";
   document.getElementById("eUrgensi").value=d.urgensi||"Sedang";
   document.getElementById("eCatatan").value=d.catatanAdmin||"";
-  const fotoDiv=document.getElementById("eFoto"); fotoDiv.innerHTML=""; (d.fotoUrls||[]).forEach(url=>{ fotoDiv.innerHTML+=`<a href="${url}" target="_blank"><img src="${url}" class="w-20 h-20 object-cover rounded-xl border"></a>`; });
-  const kontakDiv=document.getElementById("eKontak"); let html="";
-  if(d.wa) html+=`<div class="bg-emerald-50 border border-emerald-200 rounded-xl p-3 text-[12px]"><b>WA:</b> ${d.wa}</div>`;
-  if(d.email) html+=`<div class="bg-blue-50 border border-blue-200 rounded-xl p-3 text-[12px] mt-2"><b>Email:</b> ${d.email}</div>`;
-  if(!d.wa && !d.email) html="<div class='bg-slate-50 border rounded-xl p-3 text-[11px] text-slate-500'>Anonim penuh</div>";
-  kontakDiv.innerHTML=html;
+
+  // ===== FOTO BUKTI - DEBUG & RENDER =====
+  const fotoDiv=document.getElementById("eFoto"); 
+  fotoDiv.innerHTML="";
+  window._currentFotos = Array.isArray(d.fotoUrls) ? d.fotoUrls : [];
+  console.log("[DEBUG] fotoUrls:", window._currentFotos.length, window._currentFotos[0]?.substring(0,30));
+
+  if(window._currentFotos.length===0){
+    const empty = document.createElement("div");
+    empty.className='col-span-full text-[11px] text-red-500 bg-red-50 border border-red-200 rounded-xl p-3 text-center';
+    empty.innerHTML='❌ Tidak ada foto di Firebase (fotoUrls kosong).<br><span class="text-[10px] text-slate-500">Ini berarti laporan ini dikirim pakai pengaduan.html versi lama yang belum nge-save base64. Coba kirim laporan baru pakai file pengaduan_FINAL.</span>';
+    fotoDiv.appendChild(empty);
+  } else {
+    window._currentFotos.forEach((url, idx)=>{
+      if(!url) return;
+      // toleransi: kalau bukan data:image dan bukan http, coba tetap tampilkan kalau ada base64
+      if(!(url.startsWith('data:image/') || url.startsWith('http') || url.startsWith('data:'))){
+        console.warn("skip invalid url", url.substring(0,20));
+        return;
+      }
+      const wrap = document.createElement('div');
+      wrap.className = 'group relative cursor-zoom-in border rounded-xl overflow-hidden bg-white shadow-sm';
+      wrap.onclick = function(){ window.openFotoModalByIndex(idx); };
+      const img = document.createElement('img');
+      img.src = url;
+      img.className = 'w-28 h-28 object-cover group-hover:opacity-80 transition';
+      img.onerror = function(){ this.style.border='2px solid red'; console.error("img load error", idx); };
+      img.onload = function(){ console.log("img loaded", idx); };
+      wrap.appendChild(img);
+      const badge = document.createElement('div');
+      badge.className = 'absolute bottom-1 right-1 bg-[#0F2D52] text-white text-[10px] px-2 py-0.5 rounded-full font-bold';
+      badge.innerText = (idx+1)+" • "+Math.round(url.length/1024)+"KB";
+      wrap.appendChild(badge);
+      const zoomIcon = document.createElement('div');
+      zoomIcon.className='absolute inset-0 bg-black/0 group-hover:bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition';
+      zoomIcon.innerHTML='<span class="bg-white rounded-full w-8 h-8 flex items-center justify-center">👁️</span>';
+      wrap.appendChild(zoomIcon);
+      fotoDiv.appendChild(wrap);
+    });
+  }
+
+  // ===== KONTAK / NAMA =====
+  const kontakDiv=document.getElementById("eKontak");
+  let kontakHTML="";
+  const _namaRealEdit = (d.namaAsli || d.nama || "").trim();
+  const _isNamaValidEdit = _namaRealEdit && _namaRealEdit.toLowerCase() !== "anonim";
+  if(_isNamaValidEdit){
+    kontakHTML+=`<div class="bg-[#F8FAFC] border border-slate-200 rounded-xl p-3 text-[12px]"><span class="text-[10px] text-slate-500 font-bold tracking-wide">NAMA PELAPOR (HANYA ADMIN)</span><br><b class="text-[13px] text-[#0F2D52]">${escapeHTML(_namaRealEdit)}</b> <span class="text-[11px] text-slate-500">- ${escapeHTML(d.peran||'')}</span>${d.anonim?'<span class="ml-2 text-[10px] bg-amber-100 border border-amber-200 text-amber-800 px-2 py-0.5 rounded-full">Anonim di Publik</span>':''}</div>`;
+  }
+  if(d.wa) kontakHTML+=`<div class="bg-emerald-50 border border-emerald-200 rounded-xl p-3 text-[12px] flex items-center justify-between mt-2"><div><span class="text-[10px] text-emerald-700 font-bold tracking-wide">WHATSAPP</span><br><b class="text-[13px]">${escapeHTML(d.wa)}</b></div><span class="text-[10px] bg-white border px-2 py-1 rounded-full">${d.allowContact?"Bersedia":""}</span></div>`;
+  if(d.email) kontakHTML+=`<div class="bg-blue-50 border border-blue-200 rounded-xl p-3 text-[12px] mt-2"><span class="text-[10px] text-blue-700 font-bold tracking-wide">EMAIL</span><br><b class="text-[13px]">${escapeHTML(d.email)}</b></div>`;
+  if(!_isNamaValidEdit && !d.wa && !d.email){
+    kontakHTML+="<div class='bg-slate-50 border rounded-xl p-3 text-[11px] text-slate-500 flex items-center gap-2'><i data-lucide='shield' class='w-4 h-4'></i> Anonim penuh - hanya bisa dilacak via kode tiket</div>";
+  }
+  kontakDiv.innerHTML=kontakHTML;
+
   const waAction=document.getElementById("waAction");
-  if(d.wa || d.email){ waAction.classList.remove("hidden"); document.getElementById("btnWA").href=d.wa?`https://wa.me/${d.wa.replace(/[^0-9]/g,'')}?text=${encodeURIComponent(`Halo, laporan ${d.tiket} status: ${document.getElementById("eStatus").value}. ${document.getElementById("eCatatan").value}`)}`:"#"; document.getElementById("btnWA").style.display=d.wa?"flex":"none"; document.getElementById("btnEmail").href=d.email?`mailto:${d.email}?subject=Feedback ${d.tiket}`:"#"; document.getElementById("btnEmail").style.display=d.email?"flex":"none"; } else { waAction.classList.add("hidden"); }
+  if(d.wa || d.email){ waAction.classList.remove("hidden");
+    document.getElementById("btnWA").href = d.wa ? `https://wa.me/${d.wa.replace(/[^0-9]/g,'')}?text=${encodeURIComponent(`Halo, laporan ${d.tiket} - ${d.judul} status: ${document.getElementById("eStatus").value}. Catatan: ${document.getElementById("eCatatan").value||"Sudah kami tindak lanjuti."}`)}` : "#";
+    document.getElementById("btnWA").style.display = d.wa ? "flex" : "none";
+    document.getElementById("btnEmail").href = d.email ? `mailto:${d.email}?subject=Feedback Laporan ${d.tiket}` : "#";
+    document.getElementById("btnEmail").style.display = d.email ? "flex" : "none";
+  } else { waAction.classList.add("hidden"); }
   document.getElementById("modalEdit").classList.remove("hidden");
   lucide.createIcons();
 };
 window.closeEdit=()=>{ document.getElementById("modalEdit").classList.add("hidden"); editId=null; };
 window.saveEdit=async()=>{
   if(!editId) return;
-  const btn=document.querySelector('#modalEdit button[onclick="saveEdit()"]'); const orig=btn?btn.innerHTML:""; if(btn){ btn.innerHTML="Menyimpan..."; btn.disabled=true; }
-  await db.collection("laporan_smpn1_brondong").doc(editId).update({ status: document.getElementById("eStatus").value, urgensi: document.getElementById("eUrgensi").value, catatanAdmin: document.getElementById("eCatatan").value });
-  closeEdit(); alert("✅ Update! Halaman siswa auto-sync."); if(btn){ btn.innerHTML=orig; btn.disabled=false; }
+  const btn = document.querySelector('#modalEdit button[onclick="saveEdit()"]');
+  const orig = btn.innerHTML; btn.innerHTML="Menyimpan..."; btn.disabled=true;
+  await updateDoc(doc(db,"laporan_smpn1_brondong",editId), {
+    status: document.getElementById("eStatus").value,
+    urgensi: document.getElementById("eUrgensi").value,
+    catatanAdmin: document.getElementById("eCatatan").value
+  });
+  closeEdit(); await loadData(); alert("✅ Sinkron! Status & feedback sudah update di halaman utama."); btn.innerHTML=orig; btn.disabled=false;
 };
-window.hapus=async(docId)=>{ if(!confirm("Hapus permanen?")) return; await db.collection("laporan_smpn1_brondong").doc(docId).delete(); };
+window.hapus=async(docId)=>{
+  if(!confirm("Hapus permanen dari Firebase?")) return;
+  await deleteDoc(doc(db,"laporan_smpn1_brondong",docId));
+  loadData();
+};
 
-document.getElementById("search")?.addEventListener("input", render);
-document.getElementById("filterStatus")?.addEventListener("change", render);
-document.getElementById("passInput")?.addEventListener("keydown", e=>{ if(e.key==="Enter") login(); });
+document.getElementById("search").oninput=render;
+document.getElementById("filterStatus").onchange=render;
+document.getElementById("passInput").addEventListener("keydown", e=>{ if(e.key==="Enter") login(); });
+
+// FIXED: pakai _currentFotos yang sama dengan openEdit
+window.openFotoModalByIndex = (idx)=>{
+  const url = (window._currentFotos||[])[idx];
+  console.log("[FIX] openFotoModalByIndex", idx, url?.substring(0,30));
+  if(!url) { alert("Foto tidak ditemukan"); return; }
+  if(!url.startsWith('data:image/') && !url.startsWith('http') && !url.startsWith('data:')) { 
+    alert('Format foto tidak valid'); 
+    return; 
+  }
+  const imgFull = document.getElementById('imgFotoFull');
+  const dl = document.getElementById('btnDownloadFoto');
+  if(imgFull) imgFull.src = url;
+  if(dl){
+    dl.href = url;
+    const tiket = document.getElementById('eTiket')?.innerText || 'bukti';
+    dl.download = tiket + '-' + (idx+1) + '.jpg';
+  }
+  document.getElementById('modalFoto').classList.remove('hidden');
+  if(window.lucide) lucide.createIcons();
+};
+window.openFotoModal = (url)=>{
+  if(!url) return;
+  window._currentFotos = [url];
+  window.openFotoModalByIndex(0);
+};
+window.closeFotoModal = ()=>{
+  document.getElementById('modalFoto').classList.add('hidden');
+  const img = document.getElementById('imgFotoFull');
+  if(img) img.src = '';
+};
+
+
 lucide.createIcons();
 </script>
+
+<!-- MODAL VIEWER FOTO BASE64 - FIX BLANK DATA URL -->
+<div id="modalFoto" class="hidden fixed inset-0 z-[200] bg-black/80 backdrop-blur-md flex items-center justify-center p-4" onclick="if(event.target===this) closeFotoModal()">
+  <div class="relative">
+    <img id="imgFotoFull" src="" class="max-w-[90vw] max-h-[85vh] object-contain rounded-[20px] shadow-[0_20px_60px_rgba(0,0,0,0.5)] bg-white border-4 border-white">
+    <button onclick="closeFotoModal()" class="absolute -top-3 -right-3 w-9 h-9 bg-white rounded-full flex items-center justify-center shadow-lg font-bold text-slate-700 hover:bg-slate-100">✕</button>
+    <div class="mt-4 flex gap-2 justify-center">
+      <a id="btnDownloadFoto" href="" download="bukti-laporan.jpg" class="h-11 px-6 rounded-full bg-white text-[#0F2D52] font-bold text-[13px] flex items-center gap-2 shadow hover:bg-slate-50"><i data-lucide="download" class="w-4 h-4"></i> Download Foto</a>
+      <button onclick="closeFotoModal()" class="h-11 px-6 rounded-full bg-[#0F2D52] text-white font-bold text-[13px] border border-white/20">Tutup</button>
+    </div>
+    <div class="mt-3 text-center text-[11px] text-white/70">Foto bukti dari Firebase (base64, tanpa Storage)</div>
+  </div>
+</div>
+
 </body>
 </html>
