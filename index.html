@@ -8,7 +8,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <!-- Lucide Icons untuk icon Facebook, Instagram, Youtube dll -->
-  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
   <style>body{font-family:'Plus Jakarta Sans',sans-serif;}</style>
 </head>
 <body class="bg-[#F8FAFC] text-slate-800">
@@ -262,10 +262,10 @@
       <div><label class="text-[11px] font-bold">Ceritakan Kejadian</label><textarea id="inDesc" required rows="4" placeholder="Tulis kronologi dan waktu kejadian..." class="w-full mt-1 border rounded-xl px-4 py-3 text-sm"></textarea></div>
       <div><label class="text-[11px] font-bold">Lokasi (Opsional)</label><input id="inLokasi" type="text" placeholder="Masjid, Ruang Kelas 8A" class="w-full mt-1 border rounded-xl px-4 py-3 text-sm"></div>
 
-      <!-- Upload Foto Bukti - MAKS 3 - YANG KAMU CARI -->
+      <!-- Upload Foto Bukti - MAKS 3 - FIX INDIKATOR -->
       <div>
         <label class="text-[11px] font-bold">Foto Bukti (Maks 3) - Opsional</label>
-        <div class="mt-2 border-2 border-dashed border-slate-300 rounded-xl p-4 text-center bg-[#F8FAFC] hover:border-[#0F2D52] transition cursor-pointer" onclick="document.getElementById('inFoto').click()">
+        <div id="dropFotoArea" class="mt-2 border-2 border-dashed border-slate-300 rounded-xl p-4 text-center bg-[#F8FAFC] hover:border-[#0F2D52] transition cursor-pointer" onclick="document.getElementById('inFoto').click()">
           <div class="w-10 h-10 mx-auto rounded-full bg-white border border-slate-200 flex items-center justify-center">
             <i data-lucide="upload-cloud" class="w-5 h-5 text-slate-600"></i>
           </div>
@@ -273,9 +273,14 @@
           <div class="text-[11px] text-slate-500 mt-1">PNG, JPG maks 2MB per foto, maks 3 foto</div>
           <input id="inFoto" type="file" accept="image/*" multiple class="hidden">
         </div>
-        <!-- Preview Foto -->
+        <!-- Indikator file terpilih - SELALU KELIHATAN KALAU ADA -->
+        <div id="fotoSelectedInfo" class="hidden mt-3 bg-blue-50 border border-blue-200 rounded-xl p-3" style="display:none">
+          <div class="flex items-center gap-2 text-[12px] font-bold text-[#0F2D52]"><i data-lucide="image" class="w-4 h-4"></i> <span id="fotoCountText">0 foto terpilih</span></div>
+          <div id="fotoFileList" class="mt-2 space-y-1 text-[11px] text-slate-600"></div>
+        </div>
+        <!-- Preview Foto (thumbnail) -->
         <div id="previewFotoContainer" class="mt-3 grid grid-cols-3 gap-2 hidden"></div>
-        <p id="fotoInfo" class="text-[11px] text-slate-400 mt-2 hidden">0/3 foto dipilih</p>
+        <p id="fotoInfo" class="text-[11px] text-emerald-600 font-medium mt-2 hidden"></p>
       </div>
 
       <!-- Checkbox Pernyataan - PERSIS SCREENSHOT -->
@@ -288,7 +293,13 @@
       <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3">
       <div>
         <label class="text-[12px] font-semibold text-slate-700">No. WhatsApp</label>
-        <input id="inWA" type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="15" placeholder="08xx xxxx xxxx (opsional)" oninput="this.value=this.value.replace(/[^0-9]/g,'')" class="w-full mt-1.5 border border-slate-200 rounded-xl px-4 py-3 text-[13px] placeholder:text-slate-400 focus:outline-none focus:border-[#0F2D52] focus:ring-1 focus:ring-[#0F2D52]/20">
+        <input id="inWA" type="text" inputmode="numeric" maxlength="15" placeholder="08xxxxxxxxxx (opsional)" 
+          oninput="let v=this.value.replace(/[^0-9]/g,''); if(v.length>0&&v[0]!='0')v='0'+v.slice(1); if(v.length>=2&&v.slice(0,2)!='08')v='08'+v.slice(2); if(v.length>15)v=v.slice(0,15); this.value=v; const err=document.getElementById('waError'); if(err){ if(v.length>0&&v.length<10){ err.className='mt-2 text-[11px] text-amber-700 bg-amber-50 border border-amber-200 rounded-lg p-2'; err.textContent='⏳ Minimal 10 digit, harus 08... ('+v.length+' digit)'; err.classList.remove('hidden'); } else if(v.length>=10&&v.startsWith('08')){ err.className='mt-2 text-[11px] text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg p-2'; err.textContent='✅ Valid: '+v; } else if(v===''){ err.className='hidden mt-2 text-[11px] rounded-lg p-2'; } }"
+          onkeydown="if([8,9,27,13,46,35,36,37,38,39,40].indexOf(event.keyCode)!==-1)return; if((event.ctrlKey||event.metaKey)&&[65,67,86,88].indexOf(event.keyCode)!==-1)return; if((event.keyCode<48||event.keyCode>57)&&(event.keyCode<96||event.keyCode>105)){ event.preventDefault(); }"
+          onpaste="event.preventDefault(); let p=(event.clipboardData||window.clipboardData).getData('text').replace(/[^0-9]/g,''); if(p.length>0&&p[0]!='0')p='0'+p.slice(1); if(p.length>=2&&p.slice(0,2)!='08')p='08'+p.slice(2); if(p.length>15)p=p.slice(0,15); this.value=p; this.dispatchEvent(new Event('input'));"
+          onfocus="if(this.value===''){ this.value='08'; setTimeout(()=>{ this.setSelectionRange(2,2); },10); } this.dispatchEvent(new Event('input'));"
+          onblur="if(this.value==='08'||this.value==='0'){ this.value=''; const err=document.getElementById('waError'); if(err) err.className='hidden mt-2 text-[11px] rounded-lg p-2'; }"
+          class="w-full mt-1.5 border border-slate-200 rounded-xl px-4 py-3 text-[13px] placeholder:text-slate-400 focus:outline-none focus:border-[#0F2D52] focus:ring-1 focus:ring-[#0F2D52]/20">
         <p id="waError" class="hidden mt-1 text- text-red-600">❌ WA harus angka saja, contoh: 081234567890</p>
       </div>
       <div>
@@ -342,6 +353,11 @@
     </div>
   </div>
   <div id="gridLaporan" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+<div id="wrapLihatSemua" class="mt-6 flex justify-center hidden">
+  <button id="btnLihatSemua" onclick="toggleLihatSemua()" class="h-11 px-6 rounded-full bg-white border border-slate-200 text-[13px] font-bold flex items-center gap-2 hover:bg-slate-50 shadow-sm">
+    <i data-lucide="chevron-down" class="w-4 h-4"></i> <span id="txtLihatSemua">Lihat Semua Laporan</span>
+  </button>
+</div>
 </section>
 
 
@@ -505,6 +521,18 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script>
+
+function generateSecureTicket(){
+  const chars="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  const arr = new Uint8Array(6);
+  crypto.getRandomValues(arr);
+  let r="";
+  for(let i=0;i<6;i++) r+=chars[arr[i]%chars.length];
+  return r;
+}
+function generateTiketDisplay(){
+  return `SNEBRON-${new Date().getFullYear()}-${generateSecureTicket()}`;
+}  
 // FIREBASE COMPAT - TAMPILAN ASLI TIDAK DIUBAH
 const firebaseConfig = {
   apiKey: "AIzaSyCBw7cC2wAxAMNfEJyPD-_62_qmlIw5ZyE",
@@ -523,6 +551,16 @@ try{
 }catch(e){ console.error("Firebase init gagal", e); }
 
 let dataLaporan=[];
+
+function escapeHTML(str){
+  return (str||"").toString()
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+}
+
 function scrollToId(id){
   const el=document.getElementById(id);
   if(el) el.scrollIntoView({behavior:"smooth"});
@@ -531,6 +569,8 @@ function scrollToId(id){
 }
 const burger=document.getElementById("btnBurger");
 if(burger){ burger.addEventListener("click",()=>{ document.getElementById("mobileNav").classList.toggle("hidden"); }); }
+
+let showAllLaporan = false;
 
 function renderLaporan(){
   const grid=document.getElementById("gridLaporan"); if(!grid) return;
@@ -561,7 +601,8 @@ function renderLaporan(){
     return;
   }
 
-  filtered.forEach(l=>{
+  const displayList = showAllLaporan? filtered : filtered.slice(0,6);
+  displayList.forEach(l=>{
     // --- FIX: TITIK WARNA BERDASARKAN URGENSI (4 LEVEL) BUKAN STATUS ---
     const urg = (l.urgensi||"Sedang").toLowerCase();
     let dot = "bg-amber-500"; // Sedang
@@ -579,8 +620,28 @@ function renderLaporan(){
     if(l.status==="Diproses") statusWarna="bg-orange-100 text-orange-800 border-orange-200"; // oren
     if(l.status==="Selesai") statusWarna="bg-emerald-100 text-emerald-800 border-emerald-200"; // ijo
 
-    grid.innerHTML+=`<div class="bg-white border border-slate-200/70 rounded-3xl p-3.5 shadow-sm overflow-hidden"><div class="flex justify-between items-center gap-2"><span style="font-size:9px" class="font-bold px-2.5 py-1 rounded-full bg-slate-100 border truncate max-w-[52%] leading-none">${l.kategori||"Umum"}</span><span style="font-size:9px" class="px-2.5 py-1 rounded-full border font-bold shrink-0 leading-none ${statusWarna}">${l.status||"Menunggu"}</span></div><div style="font-size:11px; line-height:16px" class="mt-2.5 font-bold text-[#0F2D52] truncate">${displayJudul}</div><div style="font-size:10px; line-height:15px" class="mt-1 text-slate-500 truncate">${displayDesc}</div><div style="font-size:9px" class="mt-2.5 flex justify-between text-slate-500"><span class="font-mono">${empat} • ${l.tgl||l.tanggal||""}</span><span class="flex items-center gap-1"><span class="w-1 h-1 rounded-full ${dot}"></span>${l.urgensi||"Sedang"}</span></div><div style="font-size:9px" class="mt-2 pt-2 border-t border-slate-100 flex justify-between text-slate-400"><span>Anonim</span><span class="truncate">${displayLokasi}</span></div></div>`;  });
-  if(window.lucide) lucide.createIcons();
+    grid.innerHTML+=`<div class="bg-white border border-slate-200/70 rounded-3xl p-3.5 shadow-sm overflow-hidden"><div class="flex justify-between items-center gap-2"><span style="font-size:9px" class="font-bold px-2.5 py-1 rounded-full bg-slate-100 border truncate max-w-[52%] leading-none">${escapeHTML(l.kategori||"Umum")}</span><span style="font-size:9px" class="px-2.5 py-1 rounded-full border font-bold shrink-0 leading-none ${statusWarna}">${escapeHTML(l.status||"Menunggu")}</span></div><div style="font-size:11px; line-height:16px" class="mt-2.5 font-bold text-[#0F2D52] truncate">${escapeHTML(displayJudul)}</div><div style="font-size:10px; line-height:15px" class="mt-1 text-slate-500 truncate">${escapeHTML(displayDesc)}</div><div style="font-size:9px" class="mt-2.5 flex justify-between text-slate-500"><span class="font-mono">${escapeHTML(empat)} • ${escapeHTML(l.tgl||l.tanggal||"")}</span><span class="flex items-center gap-1"><span class="w-1 h-1 rounded-full ${dot}"></span>${escapeHTML(l.urgensi||"Sedang")}</span></div><div style="font-size:9px" class="mt-2 pt-2 border-t border-slate-100 flex justify-between text-slate-400"><span>Anonim</span><span class="truncate">${escapeHTML(displayLokasi)}</span></div></div>`;  
+  });// Tombol Lihat Semua
+  const wrapBtn = document.getElementById("wrapLihatSemua");
+const btn = document.getElementById("btnLihatSemua");
+if(wrapBtn){
+  if(filtered.length>6){
+    wrapBtn.classList.remove("hidden");
+    if(btn){
+      btn.innerHTML = showAllLaporan 
+        ? `<i data-lucide="chevron-up" class="w-4 h-4"></i> <span id="txtLihatSemua">Tampilkan Lebih Sedikit</span>`
+        : `<i data-lucide="chevron-down" class="w-4 h-4"></i> <span id="txtLihatSemua">Lihat Semua Laporan (${filtered.length})</span>`;
+    }
+  } else {
+    wrapBtn.classList.add("hidden");
+  }
+}
+if(window.lucide) lucide.createIcons();
+}
+
+function toggleLihatSemua(){
+  showAllLaporan = !showAllLaporan;
+  renderLaporan();
 }
 window.renderLaporan=renderLaporan;
 
@@ -630,33 +691,133 @@ try{
 renderLaporan();
 if(firebaseReady) loadFromFirebase();
 
-function previewFoto(input){
-  const c=document.getElementById("previewFotoContainer"); 
-  const info=document.getElementById("fotoInfo"); 
-  if(!c) return;
-  const files = Array.from(input.files || []);
-  if(files.length>3){ alert("Maks 3 foto"); input.value=""; c.innerHTML=""; c.classList.add("hidden"); return; }
-  c.innerHTML="";
-  if(files.length===0){ c.classList.add("hidden"); if(info) info.classList.add("hidden"); return; }
-  c.classList.remove("hidden"); 
-  if(info){ info.innerText=files.length+"/3 foto"; }
-  files.forEach((file)=>{
-    const r=new FileReader(); 
-    r.onload=e=>{ 
-      const div=document.createElement("div"); 
-      div.className="relative rounded-xl overflow-hidden border bg-white"; 
-      div.innerHTML=`<img src="${e.target.result}" class="w-full h-24 object-cover"><div class="p-1 text- text-center truncate">${file.name}</div><button onclick="this.parentElement.remove(); updateFotoCount()" class="absolute top-1 right-1 w-5 h-5 bg-black/60 text-white rounded-full text-">✕</button>`; 
-      c.appendChild(div); 
-    }; 
-    r.readAsDataURL(file); 
+
+let fotoBase64List = [];
+function compressImageToBase64(file, maxDim=1024, quality=0.6){
+  return new Promise((resolve, reject)=>{
+    const reader = new FileReader();
+    reader.onload = (e)=>{
+      const img = new Image();
+      img.onload = ()=>{
+        let w=img.width, h=img.height;
+        if(w>maxDim || h>maxDim){
+          if(w>h){ h = h*(maxDim/w); w=maxDim; } else { w = w*(maxDim/h); h=maxDim; }
+        }
+        const canvas=document.createElement('canvas');
+        canvas.width=w; canvas.height=h;
+        canvas.getContext('2d').drawImage(img,0,0,w,h);
+        let q=quality;
+        let dataUrl=canvas.toDataURL('image/jpeg', q);
+        while(dataUrl.length > 350*1024 && q>0.2){ q-=0.1; dataUrl=canvas.toDataURL('image/jpeg', q); }
+        resolve(dataUrl);
+      };
+      img.onerror=reject;
+      img.src=e.target.result;
+    };
+    reader.onerror=reject;
+    reader.readAsDataURL(file);
   });
 }
-function updateFotoCount(){
-  const c=document.getElementById("previewFotoContainer");
-  const count=c ? c.children.length : 0;
-  if(count===0){ c.classList.add("hidden"); }
+
+async function previewFoto(input){
+  const files = Array.from(input.files || []);
+  const container = document.getElementById("previewFotoContainer");
+  const selectedInfo = document.getElementById("fotoSelectedInfo");
+  const countText = document.getElementById("fotoCountText");
+  const fileList = document.getElementById("fotoFileList");
+  const fotoInfo = document.getElementById("fotoInfo");
+  if(!container) return;
+  if(files.length>3){
+    alert("Maks 3 foto");
+    input.value="";
+    container.innerHTML="";
+    container.classList.add("hidden");
+    if(selectedInfo){ selectedInfo.classList.add("hidden"); selectedInfo.style.display="none"; }
+    fotoBase64List=[];
+    return;
+  }
+  container.innerHTML="";
+  if(fileList) fileList.innerHTML="";
+  if(files.length===0){
+    container.classList.add("hidden");
+    if(selectedInfo){ selectedInfo.classList.add("hidden"); selectedInfo.style.display="none"; }
+    if(fotoInfo) fotoInfo.classList.add("hidden");
+    fotoBase64List=[];
+    return;
+  }
+  // Tampilkan indikator
+  if(selectedInfo){
+    selectedInfo.classList.remove("hidden");
+    selectedInfo.style.display="block";
+  }
+  if(countText) countText.textContent = files.length + " foto terpilih - memproses...";
+  if(fileList){
+    files.forEach(f=>{
+      const d=document.createElement("div");
+      d.className="flex items-center gap-2";
+      d.textContent="• "+f.name+" ("+Math.round(f.size/1024)+"KB)";
+      fileList.appendChild(d);
+    });
+  }
+  container.classList.remove("hidden");
+  fotoBase64List=[];
+  for(let i=0;i<files.length;i++){
+    const file=files[i];
+    try{
+      const b64 = await compressImageToBase64(file);
+      fotoBase64List.push(b64);
+      const div=document.createElement("div");
+      div.className="relative rounded-xl overflow-hidden border bg-white shadow-sm";
+      div.innerHTML=`<img src="${b64}" class="w-full h-24 object-cover"><div class="p-1 text-[10px] text-center truncate">${file.name}</div><button type="button" onclick="hapusFotoPreview(${i})" class="absolute top-1 right-1 w-5 h-5 bg-black/60 text-white rounded-full text-[10px] flex items-center justify-center">✕</button>`;
+      container.appendChild(div);
+      if(fileList && fileList.children[i]){
+        fileList.children[i].textContent="• "+file.name+" → "+Math.round(b64.length/1024)+"KB ✓";
+      }
+    }catch(e){ console.error(e); }
+  }
+  if(countText) countText.textContent = fotoBase64List.length + " foto siap ("+Math.round(fotoBase64List.reduce((a,b)=>a+b.length,0)/1024)+"KB)";
+  if(fotoInfo){
+    fotoInfo.classList.remove("hidden");
+    fotoInfo.textContent="✅ "+fotoBase64List.length+" foto siap dikirim bersama laporan";
+  }
+  if(window.lucide) lucide.createIcons();
+}
+function hapusFotoPreview(idx){
+  fotoBase64List.splice(idx,1);
+  const container=document.getElementById("previewFotoContainer");
+  const fileList=document.getElementById("fotoFileList");
+  const selectedInfo=document.getElementById("fotoSelectedInfo");
+  const countText=document.getElementById("fotoCountText");
+  const input=document.getElementById("inFoto");
+  if(container) container.innerHTML="";
+  if(fileList) fileList.innerHTML="";
+  if(fotoBase64List.length===0){
+    if(input) input.value="";
+    if(selectedInfo){ selectedInfo.classList.add("hidden"); selectedInfo.style.display="none"; }
+    if(container) container.classList.add("hidden");
+    const fotoInfo=document.getElementById("fotoInfo");
+    if(fotoInfo) fotoInfo.classList.add("hidden");
+    return;
+  }
+  fotoBase64List.forEach((b64,i)=>{
+    if(container){
+      const div=document.createElement("div");
+      div.className="relative rounded-xl overflow-hidden border bg-white shadow-sm";
+      div.innerHTML=`<img src="${b64}" class="w-full h-24 object-cover"><div class="p-1 text-[10px] text-center">Foto ${i+1}</div><button type="button" onclick="hapusFotoPreview(${i})" class="absolute top-1 right-1 w-5 h-5 bg-black/60 text-white rounded-full text-[10px]">✕</button>`;
+      container.appendChild(div);
+    }
+    if(fileList){
+      const d=document.createElement("div");
+      d.textContent="• Foto "+(i+1)+" • "+Math.round(b64.length/1024)+"KB";
+      fileList.appendChild(d);
+    }
+  });
+  if(countText) countText.textContent=fotoBase64List.length+" foto siap";
 }
 window.previewFoto=previewFoto;
+window.hapusFotoPreview=hapusFotoPreview;
+
+
 window.closeModal=()=>{ const m=document.getElementById("modalTiket"); if(m) m.classList.add("hidden"); };
 window.copyKode=()=>{
   const kode = document.getElementById("kodeModal").innerText;
@@ -688,14 +849,14 @@ function fallbackCopy(text){
       const snap=await db.collection("laporan_smpn1_brondong").where("tiket","==",input).get();
       if(!snap.empty){
         const d=snap.docs[0].data();
-        out.innerHTML=`<div class="font-bold">Tiket Ditemukan: ${d.tiket}</div><div class="mt-2 text-sm">Judul: ${d.judul}</div><div class="text-sm">Kategori: ${d.kategori}</div><div class="text-sm mt-1">Status: <b>${d.status}</b></div>${d.catatanAdmin?`<div class="mt-3 bg-emerald-50 border p-3 text-[12px]"><b>Feedback:</b> ${d.catatanAdmin}</div>`:""}`;
+        out.innerHTML=`<div class="font-bold">Tiket Ditemukan: ${escapeHTML(d.tiket)}</div><div class="mt-2 text-sm">Judul: ${escapeHTML(d.judul)}</div><div class="text-sm">Kategori: ${escapeHTML(d.kategori)}</div><div class="text-sm mt-1">Status: <b>${escapeHTML(d.status)}</b></div>${d.catatanAdmin?`<div class="mt-3 bg-emerald-50 border p-3 text-[12px]"><b>Feedback:</b> ${escapeHTML(d.catatanAdmin)}</div>`:""}`;
         return;
       }
     }catch(e){ console.log(e); }
   }
   const ketemu=dataLaporan.find(l=>(l.tiket||l.id)===input);
-  if(!ketemu){ out.innerHTML=`❌ Tiket <b>${input}</b> tidak ditemukan.`; return; }
-  out.innerHTML=`<div class="font-bold">Tiket: ${ketemu.tiket||ketemu.id}</div><div class="mt-2 text-sm">Judul: ${ketemu.judul}</div><div class="text-sm">Status: <b>${ketemu.status}</b></div>`;
+  if(!ketemu){ out.innerHTML=`❌ Tiket <b>${escapeHTML(input)}</b> tidak ditemukan.`; return; }
+  out.innerHTML=`<div class="font-bold">Tiket: ${escapeHTML(ketemu.tiket||ketemu.id)}</div><div class="mt-2 text-sm">Judul: ${escapeHTML(ketemu.judul)}</div><div class="text-sm">Status: <b>${escapeHTML(ketemu.status)}</b></div>`;
 };
 
 const form=document.getElementById("formLapor");
@@ -706,9 +867,22 @@ if(form){
     const btn=document.getElementById("btnKirim");
     const orig=btn?btn.innerHTML:"";
     if(btn){ btn.disabled=true; btn.innerHTML="Mengirim..."; }
-    const tahun=new Date().getFullYear();
-    const acak=Math.floor(1000+Math.random()*9000);
-    const kodeBaru=`SNEBRON-${tahun}-${acak}`;
+        const fileInput = document.getElementById('inFoto');
+    const filesNow = fileInput ? Array.from(fileInput.files||[]) : [];
+    if(filesNow.length>0 && fotoBase64List.length===0){
+      for(let f of filesNow.slice(0,3)){
+        try{ const b64 = await compressImageToBase64(f); fotoBase64List.push(b64); }catch(e){}
+      }
+    }
+    const fotoFinal = fotoBase64List.filter(b=>b && b.startsWith('data:image/'));
+    const totalKB = Math.round(fotoFinal.reduce((a,b)=>a+b.length,0)/1024);
+    if(totalKB>900){
+      alert("Total foto terlalu besar ("+totalKB+"KB). Maks 900KB, coba 1-2 foto.");
+      if(btn){ btn.disabled=false; btn.innerHTML=orig; }
+      return;
+    }
+
+    const kodeBaru=generateTiketDisplay();    
     const judul=document.getElementById("inJudul").value;
     const katEl=document.querySelector('input[name="kat"]:checked');
     const urgEl=document.querySelector('input[name="urg"]:checked');
@@ -728,8 +902,8 @@ if(form){
       try{
         await db.collection("laporan_smpn1_brondong").add({
           tiket:kodeBaru, id:kodeBaru, judul:judul, deskripsi:desc, kategori:kat, urgensi:urg,
-          lokasi:lokasi, anonim:isAnonim, nama:isAnonim?"Anonim":nama, peran:peran, wa:wa, email:email,
-          allowContact:allowContact, status:"Menunggu", fotoUrls:[], tanggal:tgl,
+          lokasi:lokasi, anonim:isAnonim, nama:nama, namaAsli:nama, namaTampil:isAnonim?"Anonim":(nama||"Anonim"), peran:peran, wa:wa, email:email,
+          allowContact:allowContact, status:"Menunggu", fotoUrls: fotoFinal, tanggal:tgl,
           createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
         console.log("Sukses Firebase", kodeBaru);
@@ -739,7 +913,7 @@ if(form){
       }
     }
 
-    const baru={id:kodeBaru,tiket:kodeBaru,judul:judul,desc:desc,deskripsi:desc,kategori:kat,urgensi:urg,lokasi:lokasi,anonim:isAnonim,nama:nama,peran:peran,wa:wa,email:email,allowContact:allowContact,status:"Menunggu",tgl:tgl,tanggal:tgl,fotoUrls:[]};
+    const baru={id:kodeBaru,tiket:kodeBaru,judul:judul,desc:desc,deskripsi:desc,kategori:kat,urgensi:urg,lokasi:lokasi,anonim:isAnonim,nama:nama,namaAsli:nama,namaTampil:isAnonim?"Anonim":(nama||"Anonim"),peran:peran,wa:wa,email:email,allowContact:allowContact,status:"Menunggu",tgl:tgl,tanggal:tgl,fotoUrls: fotoFinal};
     dataLaporan.unshift(baru);
     try{ localStorage.setItem("laporan_smpn1brondong", JSON.stringify(dataLaporan)); }catch(e){}
     renderLaporan();
@@ -761,14 +935,38 @@ const searchEl=document.getElementById("inSearch");
 if(searchEl) searchEl.addEventListener("input", renderLaporan);
 const filterEl=document.getElementById("inFilter");
 if(filterEl) filterEl.addEventListener("change", renderLaporan);
-const anonEl=document.getElementById("isAnonim");
-if(anonEl) anonEl.addEventListener("change", function(){ const box=document.getElementById("boxIdentitas"); if(box) box.classList.toggle("hidden", this.checked); });
-const fotoEl=document.getElementById("inFoto");
-if(fotoEl) fotoEl.addEventListener("change", function(){ previewFoto(this); });
 
-if(window.lucide) lucide.createIcons();
-console.log("Pengaduan JS loaded, form:", !!document.getElementById("formLapor"));
-// AUTO ANONIM PERUNDUNGAN
+// FIX NAMA KOLOM - DEFINITIF
+const fotoInputEl=document.getElementById("inFoto");
+if(fotoInputEl){
+  fotoInputEl.addEventListener("change", function(){ 
+    console.log("Foto dipilih:", this.files.length);
+    previewFoto(this); 
+  });
+}
+const anonEl=document.getElementById("isAnonim");
+const boxIdentitasEl=document.getElementById("boxIdentitas");
+function updateIdentitasVisibility(){
+  if(!boxIdentitasEl || !anonEl) return;
+  const isPerundungan = (document.querySelector('input[name="kat"]:checked')?.value || "").toLowerCase().includes("perundungan") || (document.querySelector('input[name="kat"]:checked')?.value || "").toLowerCase().includes("bullying");
+  if(isPerundungan){
+    // Untuk perundungan, box tetap tampil untuk admin walau anonim checked
+    boxIdentitasEl.classList.remove("hidden");
+  } else {
+    // Untuk kategori biasa, tampil hanya jika uncheck anonim
+    if(anonEl.checked){
+      boxIdentitasEl.classList.add("hidden");
+    } else {
+      boxIdentitasEl.classList.remove("hidden");
+    }
+  }
+}
+if(anonEl){
+  anonEl.addEventListener("change", updateIdentitasVisibility);
+}
+// panggil sekali saat load
+setTimeout(updateIdentitasVisibility, 100);
+
 function handleKategoriChange(){
   const selected = document.querySelector('input[name="kat"]:checked')?.value || "";
   const isPerundungan = selected.toLowerCase().includes("perundungan") || selected.toLowerCase().includes("bullying");
@@ -776,20 +974,51 @@ function handleKategoriChange(){
   const anonimCheck = document.getElementById("isAnonim");
   const boxIdentitas = document.getElementById("boxIdentitas");
   if(isPerundungan){
-    if(alertBox) alertBox.classList.remove("hidden");
-    if(anonimCheck){ anonimCheck.checked=true; anonimCheck.disabled=true; }
-    if(boxIdentitas) boxIdentitas.classList.add("hidden");
+    if(alertBox){
+      alertBox.classList.remove("hidden");
+      alertBox.innerHTML = `<div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center shrink-0">🛡️</div><div><div class="font-bold text-red-800">Mode Anonim Otomatis Aktif (Publik)</div><div class="text-[12px] text-red-700 leading-5 mt-1">Laporan <b>Perundungan/Bullying</b> otomatis disamarkan di publik demi keamanan. <b>Nama tetap tersimpan dan hanya terlihat di Admin.</b></div></div>`;
+    }
+    if(anonimCheck){ anonimCheck.checked=true; /* jangan disable total biar bisa uncheck kalau mau */ }
+    if(boxIdentitas){
+      boxIdentitas.classList.remove("hidden");
+      let hint=document.getElementById("hintNamaAdmin");
+      if(!hint){
+        hint=document.createElement("div");
+        hint.id="hintNamaAdmin";
+        hint.className="col-span-2 text-[11px] text-[#0F2D52] bg-blue-50 border border-blue-200 rounded-xl p-2.5 mt-2";
+        hint.innerHTML="🔒 Nama di bawah ini <b>hanya terlihat di Admin</b>, di Transparansi Publik tetap Anonim.";
+        boxIdentitas.appendChild(hint);
+      }
+    }
     const urgTinggi = document.querySelector('input[name="urg"][value="Tinggi"]');
-    if(urgTinggi) urgTinggi.checked = true;
+    if(urgTinggi) urgTinggi.checked=true;
   } else {
-    if(alertBox) alertBox.classList.add("hidden");
-    if(anonimCheck){ anonimCheck.disabled=false; }
+    if(alertBox){
+      alertBox.classList.add("hidden");
+    }
+    const hint=document.getElementById("hintNamaAdmin");
+    if(hint) hint.remove();
   }
+  updateIdentitasVisibility();
+  if(window.lucide) lucide.createIcons();
 }
 document.querySelectorAll('input[name="kat"]').forEach(r=>{
   r.addEventListener("change", handleKategoriChange);
 });
 handleKategoriChange();
+
+// FIX ICON HILANG
+function initLucideIcons(){
+  if(window.lucide){
+    try{ lucide.createIcons(); }catch(e){}
+  }
+}
+document.addEventListener('DOMContentLoaded', function(){ initLucideIcons(); initWAInput(); });
+window.addEventListener('load', initLucideIcons);
+setTimeout(initLucideIcons, 300);
+setTimeout(initLucideIcons, 1000);
+setTimeout(initWAInput, 500);
+
 function goAdmin(e, url){
   e.preventDefault();
   const trans = document.getElementById("pageTransition");
