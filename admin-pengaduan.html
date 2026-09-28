@@ -50,7 +50,7 @@
       </div>
       <div class="flex items-center gap-2">
         <div class="hidden md:flex items-center gap-2 mr-2 text-[12px] text-slate-500 bg-white border rounded-full px-3 py-1.5"><i data-lucide="database" class="w-3.5 h-3.5"></i> smpn1-brondong</div>
-        <a href="index.html" class="h-9 px-4 rounded-full bg-white border text- font-semibold flex items-center gap-1.5"><i data-lucide="external-link" class="w-3.5 h-3.5"></i> Website</a>        <button onclick="loadData()" class="h-9 w-9 rounded-full bg-white border flex items-center justify-center"><i data-lucide="refresh-cw" class="w-4 h-4"></i></button>
+        <a href="pengaduan.html" class="h-9 px-4 rounded-full bg-white border text- font-semibold flex items-center gap-1.5"><i data-lucide="external-link" class="w-3.5 h-3.5"></i> Website</a>        <button onclick="loadData()" class="h-9 w-9 rounded-full bg-white border flex items-center justify-center"><i data-lucide="refresh-cw" class="w-4 h-4"></i></button>
         <button onclick="logout()" class="h-9 px-4 rounded-full bg-[#0F2D52] text-white text-[12px] font-bold flex items-center gap-1.5"><i data-lucide="log-out" class="w-3.5 h-3.5"></i> Logout</button>
       </div>
     </div>
@@ -282,8 +282,8 @@ window.openEdit=(docId)=>{
 
   if(window._currentFotos.length===0){
     const empty = document.createElement("div");
-    empty.className='col-span-full text-[11px] text-red-500 bg-red-50 border border-red-200 rounded-xl p-3 text-center';
-    empty.innerHTML='❌ Tidak ada foto di Firebase (fotoUrls kosong).<br><span class="text-[10px] text-slate-500">Ini berarti laporan ini dikirim pakai pengaduan.html versi lama yang belum nge-save base64. Coba kirim laporan baru pakai file pengaduan_FINAL.</span>';
+    empty.className='... bg-slate-50 border-slate-200 text-slate-500 ...';
+    empty.innerHTML='🖼️ Tidak ada foto dilampirkan - Pelapor tidak menyertakan bukti foto untuk laporan ini';
     fotoDiv.appendChild(empty);
   } else {
     window._currentFotos.forEach((url, idx)=>{
