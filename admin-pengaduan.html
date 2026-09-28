@@ -2,13 +2,33 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
 <title>Admin - Laporan SMPN 1 Brondong</title>
 <link rel="icon" href="logo-smp2.png">
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/lucide@latest"></script>
-<style>body{font-family:'Plus Jakarta Sans',sans-serif}.glass{background:rgba(255,255,255,0.85);backdrop-filter:blur(12px)}</style>
+<style>body{font-family:'Plus Jakarta Sans',sans-serif}.glass{background:rgba(255,255,255,0.85);backdrop-filter:blur(12px)}
+
+body{font-family:'Plus Jakarta Sans',sans-serif;overflow-x:hidden}
+.glass{background:rgba(255,255,255,0.85);backdrop-filter:blur(12px)}
+.table-wrap{overflow:auto;-webkit-overflow-scrolling:touch}
+.table-wrap table{min-width:720px}
+@media(max-width:768px){
+  .table-wrap table{min-width:600px}
+  .filter-grid{grid-template-columns:1fr 1fr !important}
+  header .header-btn-text{display:none}
+  #bulkBar{left:12px !important;right:12px !important;bottom:12px !important;transform:none !important;width:auto !important}
+}
+@media(max-width:480px){
+  .filter-grid{grid-template-columns:1fr !important}
+  .stat-grid{grid-template-columns:1fr 1fr !important;gap:10px !important}
+}
+button, a, select, input{min-height:44px}
+select,input[type="email"],input[type="password"],input[type="text"]{font-size:16px}
+.header-inner{max-width:1280px;margin:0 auto;padding:0 12px;min-height:68px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+@media(min-width:640px){.header-inner{padding:0 24px}}
+</style>
 <script async src="https://unpkg.com/es-module-shims@1.8.0/dist/es-module-shims.js"></script>
 <script type="importmap">{"imports":{"firebase/app":"https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js","firebase/firestore":"https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js","firebase/storage":"https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js","firebase/auth":"https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"}}</script>
 </head>
