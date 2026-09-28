@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin - Laporan SMPN 1 Brondong</title>
-<link rel="icon" href="logo-smp2.png">
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/lucide@latest"></script>
@@ -50,7 +49,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif}
       </div>
       <div class="mt-5 space-y-3">
         <div class="relative"><i data-lucide="mail" class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i><input id="emailInput" type="email" placeholder="Email admin" class="w-full h-[48px] border border-slate-200 rounded-full pl-11 pr-5 text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F2D52]/20 focus:border-[#0F2D52]"></div>
-        <div class="relative"><i data-lucide="lock" class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i><input id="passInput" type="password" placeholder="Password" class="w-full h-[48px] border border-slate-200 rounded-full pl-11 pr-11 text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F2D52]/20 focus:border-[#0F2D52]"><button type="button" onclick="togglePass()" class="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-400 transition"><i data-lucide="eye" id="eyeIcon" class="w-4 h-4"></i></button></div>
+        <div class="relative"><i data-lucide="lock" class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i><input id="passInput" type="password" placeholder="Password" class="w-full h-[48px] border border-slate-200 rounded-full pl-11 pr-5 text-[14px] focus:outline-none focus:ring-2 focus:ring-[#0F2D52]/20 focus:border-[#0F2D52]"></div>
         <button onclick="login()" class="w-full h-[48px] rounded-full bg-[#0F2D52] text-white font-bold text-[14px] flex items-center justify-center gap-2 hover:bg-[#133967] shadow-[0_8px_20px_rgba(15,45,82,0.25)]"><i data-lucide="log-in" class="w-4 h-4"></i> Masuk Dashboard</button>
         <p id="loginErr" class="hidden text-[12px] text-red-600 bg-red-50 border border-red-200 rounded-xl p-3 text-center"></p>
       </div>
@@ -99,7 +98,13 @@ body{font-family:'Plus Jakarta Sans',sans-serif}
     </div>
 
     <div class="mt-4 bg-white border border-slate-200 rounded-[20px] overflow-hidden shadow-sm">
-      <div class="px-5 py-4 border-b flex items-center justify-between"><div class="font-bold text-[#0F2D52] text-[14px] flex items-center gap-2"><i data-lucide="table" class="w-4 h-4"></i> Daftar Laporan <span class="text-[11px] font-normal text-slate-500 bg-slate-100 border px-2 py-0.5 rounded-full" id="countInfo">0 laporan</span></div><div class="text-[11px] text-slate-500 hidden md:flex items-center gap-1"><span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span> Live sync dari Firestore</div></div>
+      <div class="px-5 py-4 border-b flex items-center justify-between gap-3">
+        <div class="font-bold text-[#0F2D52] text-[14px] flex items-center gap-2"><i data-lucide="table" class="w-4 h-4"></i> Daftar Laporan <span class="text-[11px] font-normal text-slate-500 bg-slate-100 border px-2 py-0.5 rounded-full" id="countInfo">0 laporan</span></div>
+        <div class="flex items-center gap-3">
+          <label class="md:hidden flex items-center gap-2 text-[11px] font-bold text-[#0F2D52] bg-slate-100 border px-3 py-1.5 rounded-full cursor-pointer hover:bg-slate-200"><input type="checkbox" id="checkAllMobile" onchange="toggleAll(this.checked)" class="w-4 h-4 rounded border-slate-300 text-[#0F2D52]"> Centang semua</label>
+          <div class="text-[11px] text-slate-500 hidden md:flex items-center gap-1"><span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span> Live sync dari Firestore</div>
+        </div>
+      </div>
     <!-- BULK ACTION BAR - CHECKLIST -->
     <div id="bulkBar" class="hidden px-5 py-3 bg-[#0F2D52] text-white flex flex-wrap items-center justify-between gap-3">
       <div class="flex items-center gap-3">
@@ -169,17 +174,7 @@ function initFirebase(){
   }
   return db;
 }
-window.togglePass=()=>{
-  const inp=document.getElementById("passInput");
-  const icon=document.getElementById("eyeIcon");
-  if(!inp) return;
-  const isPass = inp.type==="password";
-  inp.type = isPass ? "text" : "password";
-  if(icon){
-    icon.setAttribute("data-lucide", isPass ? "eye-off" : "eye");
-    lucide.createIcons();
-  }
-};
+window.togglePass=()=>{ const inp=document.getElementById("passInput"); const icon=document.getElementById("eyeIcon"); if(!inp) return; const isPass = inp.type==="password"; inp.type = isPass ? "text" : "password"; if(icon){ icon.setAttribute("data-lucide", isPass ? "eye-off" : "eye"); lucide.createIcons(); } };
 window.login=async()=>{
   const email=document.getElementById("emailInput")?.value?.trim();
   const pass=document.getElementById("passInput").value;
@@ -292,7 +287,7 @@ function render(){
       <div class="bg-white border rounded-[16px] p-4 shadow-sm ${selectedIds.has(d.docId)?'ring-2 ring-[#0F2D52]/20':''}">
         <div class="flex items-start justify-between gap-2">
           <div class="flex items-center gap-2">
-            <input type="checkbox" class="w-4 h-4 rounded" ${selectedIds.has(d.docId)?'checked':''} onchange="toggleSelect('${d.docId}', this.checked)">
+            <input type="checkbox" class="rowCheck w-4 h-4 rounded border-slate-300 text-[#0F2D52]" value="${d.docId}" ${selectedIds.has(d.docId)?'checked':''} onchange="toggleSelect('${d.docId}', this.checked)">
             <span class="font-mono text-[11px] font-bold text-[#0F2D52]">${escapeHTML(d.tiket||d.id||"")}</span>
           </div>
           <span class="px-2.5 py-1 rounded-full text-[10px] font-bold border ${warna}">${escapeHTML(d.status||"")}</span>
@@ -565,17 +560,19 @@ function updateBulkBar(){
   const bar = document.getElementById('bulkBar');
   const count = document.getElementById('bulkCount');
   const checkAll = document.getElementById('checkAll');
+  const checkAllMobile = document.getElementById('checkAllMobile');
   if(selectedIds.size>0){
     bar.classList.remove('hidden');
     count.innerText = selectedIds.size;
-    // check if all filtered are selected
     const totalFiltered = document.querySelectorAll('.rowCheck').length;
     const checkedFiltered = document.querySelectorAll('.rowCheck:checked').length;
-    if(checkAll) checkAll.checked = totalFiltered>0 && totalFiltered===checkedFiltered;
-    if(checkAll) checkAll.indeterminate = checkedFiltered>0 && checkedFiltered<totalFiltered;
+    const isAll = totalFiltered>0 && totalFiltered===checkedFiltered;
+    if(checkAll) { checkAll.checked = isAll; checkAll.indeterminate = checkedFiltered>0 && checkedFiltered<totalFiltered; }
+    if(checkAllMobile) { checkAllMobile.checked = isAll; checkAllMobile.indeterminate = checkedFiltered>0 && checkedFiltered<totalFiltered; }
   } else {
     bar.classList.add('hidden');
     if(checkAll) { checkAll.checked=false; checkAll.indeterminate=false; }
+    if(checkAllMobile) { checkAllMobile.checked=false; checkAllMobile.indeterminate=false; }
   }
   if(window.lucide) lucide.createIcons();
 }
