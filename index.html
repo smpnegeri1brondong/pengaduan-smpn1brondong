@@ -913,6 +913,29 @@ if(form){
       }
     }
 
+    // === KIRIM NOTIFIKASI TELEGRAM - CARA GAMPANG TANPA FUNCTIONS ===
+    try {
+      const token = "8964657036:AAG9DRo44EsDNcWRj_2F9Bsqy1y4bhjfMmg";
+      const chatId = "8298900186";
+      const pesanTelegram = `🔔 PENGADUAN BARU - SMPN 1 BRONDONG
+
+🎫 Tiket: ${kodeBaru}
+👤 Nama: ${isAnonim ? 'Anonim' : (nama || 'Anonim')}
+🏫 Kelas/Peran: ${peran || lokasi || '-'}
+📂 Kategori: ${kat}
+⚠️ Urgensi: ${urg}
+📝 Judul: ${judul}
+📄 Isi: ${desc.substring(0,300)}
+
+📅 Tgl: ${tgl}`;
+      
+      fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ chat_id: chatId, text: pesanTelegram })
+      }).then(r => console.log("Telegram:", r.status)).catch(e => console.error("Telegram error", e));
+    } catch(eTele){ console.error("Gagal telegram", eTele); }
+
     const baru={id:kodeBaru,tiket:kodeBaru,judul:judul,desc:desc,deskripsi:desc,kategori:kat,urgensi:urg,lokasi:lokasi,anonim:isAnonim,nama:nama,namaAsli:nama,namaTampil:isAnonim?"Anonim":(nama||"Anonim"),peran:peran,wa:wa,email:email,allowContact:allowContact,status:"Menunggu",tgl:tgl,tanggal:tgl,fotoUrls: fotoFinal};
     dataLaporan.unshift(baru);
     try{ localStorage.setItem("laporan_smpn1brondong", JSON.stringify(dataLaporan)); }catch(e){}
