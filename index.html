@@ -913,10 +913,10 @@ if(form){
       }
     }
 
-    // === KIRIM NOTIFIKASI TELEGRAM - CARA GAMPANG TANPA FUNCTIONS ===
+    // === KIRIM NOTIFIKASI TELEGRAM + FOTO - FIX ANTI SPAM (CUMA 1x KIRIM) ===
     try {
       const token = "8964657036:AAG9DRo44EsDNcWRj_2F9Bsqy1y4bhjfMmg";
-      const chatId = "8298900186";
+      const chatId = "-1004263120531";
       const pesanTelegram = `🔔 PENGADUAN BARU - SMPN 1 BRONDONG
 
 🎫 Tiket: ${kodeBaru}
@@ -926,14 +926,46 @@ if(form){
 ⚠️ Urgensi: ${urg}
 📝 Judul: ${judul}
 📄 Isi: ${desc.substring(0,300)}
+📍 Lokasi: ${lokasi}
+${fotoFinal && fotoFinal.length>0 ? '📸 Foto: '+fotoFinal.length+' file' : '📸 Foto: tidak ada'}
 
-📅 Tgl: ${tgl}`;
-      
-      fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ chat_id: chatId, text: pesanTelegram })
-      }).then(r => console.log("Telegram:", r.status)).catch(e => console.error("Telegram error", e));
+📅 Tgl: ${tgl}
+
+SEGERA LAKUKAN TINDAKAN DI HALAMAN ADMIN`;
+
+      function b64toBlob(b64){
+        try{
+          const arr = b64.split(','), mime = arr[0].match(/:(.*?);/)[1], bstr = atob(arr[1]);
+          let n = bstr.length; const u8 = new Uint8Array(n);
+          while(n--) u8[n]=bstr.charCodeAt(n);
+          return new Blob([u8], {type:mime});
+        }catch(e){ return null; }
+      }
+
+      // CUMA KIRIM 1 KALI SAJA!
+      if (fotoFinal && fotoFinal.length > 0) {
+        // Ada foto: kirim 1 foto pertama saja dengan caption lengkap (biar ga spam 3x)
+        try{
+          const blob = b64toBlob(fotoFinal[0]);
+          if(blob){
+            const fd = new FormData();
+            fd.append('chat_id', chatId);
+            fd.append('photo', blob, `foto_${kodeBaru}.jpg`);
+            fd.append('caption', pesanTelegram);
+            fetch(`https://api.telegram.org/bot${token}/sendPhoto`, { method: "POST", body: fd, mode: "no-cors" });
+            console.log("Telegram: 1 foto terkirim");
+          } else {
+            // fallback kalau blob gagal, kirim teks
+            fetch(`https://api.telegram.org/bot${token}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(pesanTelegram)}`, { method: "GET", mode: "no-cors" });
+          }
+        }catch(eFoto){ 
+          fetch(`https://api.telegram.org/bot${token}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(pesanTelegram)}`, { method: "GET", mode: "no-cors" });
+        }
+      } else {
+        // Tidak ada foto: kirim 1 teks saja
+        fetch(`https://api.telegram.org/bot${token}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(pesanTelegram)}`, { method: "GET", mode: "no-cors" });
+        console.log("Telegram: 1 teks terkirim");
+      }
     } catch(eTele){ console.error("Gagal telegram", eTele); }
 
     const baru={id:kodeBaru,tiket:kodeBaru,judul:judul,desc:desc,deskripsi:desc,kategori:kat,urgensi:urg,lokasi:lokasi,anonim:isAnonim,nama:nama,namaAsli:nama,namaTampil:isAnonim?"Anonim":(nama||"Anonim"),peran:peran,wa:wa,email:email,allowContact:allowContact,status:"Menunggu",tgl:tgl,tanggal:tgl,fotoUrls: fotoFinal};
@@ -945,6 +977,17 @@ if(form){
     const modal=document.getElementById("modalTiket");
     if(modal) modal.classList.remove("hidden");
     e.target.reset();
+    // === FIX BUG FOTO KEBAWA: RESET TOTAL ===
+    fotoBase64List = []; // kosongkan array foto biar ga kebawa ke laporan selanjutnya
+    const fileInputReset = document.getElementById("inFoto");
+    if(fileInputReset) fileInputReset.value = ""; // reset input file
+    const fotoSelectedInfo = document.getElementById("fotoSelectedInfo");
+    if(fotoSelectedInfo){ fotoSelectedInfo.classList.add("hidden"); fotoSelectedInfo.style.display="none"; }
+    const fotoFileList = document.getElementById("fotoFileList");
+    if(fotoFileList) fotoFileList.innerHTML = "";
+    const fotoCountText = document.getElementById("fotoCountText");
+    if(fotoCountText) fotoCountText.textContent = "";
+
     const box=document.getElementById("boxIdentitas"); if(box) box.classList.add("hidden");
     const anonimCheck=document.getElementById("isAnonim"); if(anonimCheck) anonimCheck.checked=true;
     const prev=document.getElementById("previewFotoContainer"); if(prev){ prev.innerHTML=""; prev.classList.add("hidden"); }
